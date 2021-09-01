@@ -51,11 +51,9 @@
 			}]
 		};
 		var wsc;
-		var getusermedia = navigator.getUserMedia ||
-			navigator.webkitGetUserMedia ||
-			navigator.mozGetUserMedia ||
-			navigator.msGetUserMedia ||
-			navigator.mediaDevices.getUserMedia();
+		var getusermedia = 
+			navigator.mediaDevices.getUserMedia;
+			console.log(navigator.getUserMedia);
 		var pc;
 		_myParam = location.search.split('room=')[1];
 		var recorder;
@@ -163,6 +161,7 @@
 				document.getElementById('remoteVideo').srcObject = event.stream;
 			};
 
+			console.log('getusermedia: ', getusermedia);
 			getusermedia.call(navigator, {
 				video: true,
 				audio: true
