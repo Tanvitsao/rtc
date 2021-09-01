@@ -26,7 +26,7 @@
 		<!-- 等待對方的畫面 -->
 		<div id="wait-view" class="video-zone center"></div>
 		<!-- 視訊畫面 -->
-		<div  class="video-zone active">
+		<div class="video-zone active">
 			<video id="remoteVideo" autoplay playsinline class="active"></video>
 			<video id="localVideo" autoplay playsinline class="active"></video>
 		</div>
@@ -51,8 +51,7 @@
 			}]
 		};
 		var wsc;
-		var getusermedia = navigator.getUserMedia ||
-			navigator.mediaDevices.getUserMedia;
+		var getusermedia = navigator.mediaDevices.getUserMedia;
 
 
 
@@ -73,6 +72,9 @@
 			}
 
 
+			video.setAttribute('autoplay', '');
+			video.setAttribute('muted', '');
+			video.setAttribute('playsinline', '');
 
 
 			getusermedia.call(navigator, {
