@@ -26,7 +26,7 @@
 		<!-- 等待對方的畫面 -->
 		<div id="wait-view" class="video-zone center"></div>
 		<!-- 視訊畫面 -->
-		<div class="video-zone active">
+		<div id="videos" class="video-zone active">
 			<video id="remoteVideo" autoplay playsinline class="active"></video>
 			<video id="localVideo" autoplay playsinline class="active"></video>
 		</div>
@@ -70,73 +70,6 @@
 			} else if (_myParam.indexOf('$') > -1) { // Customer
 				document.getElementById("circle").innerText = '客戶';
 			}
-
-
-
-			navigator.mediaDevices.getUserMedia({ audio: true, video: true })
-				.then(stream => {
-					document.getElementById('localVideo').srcObject = stream;
-				// get a local stream, show it in a self-view and add it to be sent
-				pc.addStream(stream);
-
-
-
-				/* 建立 mediaRecorder 物件 */
-				recorder = new MediaRecorder(stream);
-				recorder.start();
-				// 訂閱 MediaRecorder，在結束錄影後回傳檔案
-				recorder.ondataavailable = function (event) {
-					console.log(event);
-					const recordVideo = new Blob([event.data], { 'type': 'video' });
-					const url = URL.createObjectURL(recordVideo);
-					const downloadLink = document.createElement('a');
-					downloadLink.href = url; // url
-					downloadLink.download = 'video.mp4'; // 檔名
-					document.body.appendChild(downloadLink);
-					downloadLink.click();
-					document.body.removeChild(downloadLink);
-				}
-				});
-
-			// getusermedia.call(navigator, {
-			// 	video: true,
-			// 	audio: true
-			// }, function (stream) {
-			// 	document.getElementById('localVideo').srcObject = stream;
-			// 	// get a local stream, show it in a self-view and add it to be sent
-			// 	pc.addStream(stream);
-
-
-
-			// 	/* 建立 mediaRecorder 物件 */
-			// 	recorder = new MediaRecorder(stream);
-			// 	recorder.start();
-			// 	// 訂閱 MediaRecorder，在結束錄影後回傳檔案
-			// 	recorder.ondataavailable = function (event) {
-			// 		console.log(event);
-			// 		const recordVideo = new Blob([event.data], { 'type': 'video' });
-			// 		const url = URL.createObjectURL(recordVideo);
-			// 		const downloadLink = document.createElement('a');
-			// 		downloadLink.href = url; // url
-			// 		downloadLink.download = 'video.mp4'; // 檔名
-			// 		document.body.appendChild(downloadLink);
-			// 		downloadLink.click();
-			// 		document.body.removeChild(downloadLink);
-			// 	}
-
-
-			// }, function (e) {
-			// 	console.log(e);
-			// });
-
-
-
-
-
-
-
-
-
 		}
 
 		function startStock() {
@@ -234,37 +167,46 @@
 				document.getElementById('remoteVideo').srcObject = event.stream;
 			};
 
-			console.log('getusermedia: ', getusermedia);
-			getusermedia.call(navigator, {
-				video: true,
-				audio: true
-			}, function (stream) {
-				document.getElementById('localVideo').srcObject = stream;
-				// get a local stream, show it in a self-view and add it to be sent
-				pc.addStream(stream);
+			// 取得攝影機、麥克風權限
+			navigator.mediaDevices.getUserMedia({ audio: true, video: true })
+				.then(stream => {
+					document.getElementById('localVideo').srcObject = stream;
+					// get a local stream, show it in a self-view and add it to be sent
+					pc.addStream(stream);
 
 
 
-				/* 建立 mediaRecorder 物件 */
-				recorder = new MediaRecorder(stream);
-				recorder.start();
-				// 訂閱 MediaRecorder，在結束錄影後回傳檔案
-				recorder.ondataavailable = function (event) {
-					console.log(event);
-					const recordVideo = new Blob([event.data], { 'type': 'video' });
-					const url = URL.createObjectURL(recordVideo);
-					const downloadLink = document.createElement('a');
-					downloadLink.href = url; // url
-					downloadLink.download = 'video.mp4'; // 檔名
-					document.body.appendChild(downloadLink);
-					downloadLink.click();
-					document.body.removeChild(downloadLink);
-				}
+					/* 建立 mediaRecorder 物件 */
+					recorder = new MediaRecorder(stream);
+					recorder.start();
+					// 訂閱 MediaRecorder，在結束錄影後回傳檔案
+					recorder.ondataavailable = function (event) {
+						console.log(event);
+						const recordVideo = new Blob([event.data], { 'type': 'video' });
+						const url = URL.createObjectURL(recordVideo);
+						const downloadLink = document.createElement('a');
+						downloadLink.href = url; // url
+						downloadLink.download = 'video.mp4'; // 檔名
+						document.body.appendChild(downloadLink);
+						downloadLink.click();
+						document.body.removeChild(downloadLink);
+					}
+				});
 
 
-			}, function (e) {
-				console.log(e);
-			});
+
+
+
+			// getusermedia.call(navigator, {
+			// 	video: true,
+			// 	audio: true
+			// }, function (stream) {
+			// 	document.getElementById('localVideo').srcObject = stream;
+			// 	// get a local stream, show it in a self-view and add it to be sent
+			// 	pc.addStream(stream);
+			// }, function (e) {
+			// 	console.log(e);
+			// });
 		}
 
 		function stopStock() {
