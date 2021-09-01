@@ -11,7 +11,7 @@
 <body>
 	<div class="header">
 		<img src="./assets/image/logo.jpg" height="40px" width="200px" style="margin-bottom: 10px;" alt="">
-		<h3 class="video-title">視訊服務5</h3>
+		<h3 class="video-title">視訊服務6</h3>
 		<div class="ms-auto">
 			<span id="customerState" class="me-4">客戶：未上線</span>
 			<span id="agentState">客服人員：未上線</span>
@@ -51,9 +51,9 @@
 			}]
 		};
 		var wsc;
-		// const openMediaDevices = async (constraints) => {
-		// 	return await navigator.mediaDevices.getUserMedia(constraints);
-		// }
+		async function getMediaPermission() {
+			await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+		}
 
 
 
@@ -170,19 +170,10 @@
 			};
 
 			// 取得攝影機、麥克風權限
-			return new Promise((resolve, rej) => {
-				navigator.mediaDevices
-					.getUserMedia({ video: true, audio: true })
-					.then(stream => {
-						document.getElementById('localVideo').srcObject = stream;
-						// get a local stream, show it in a self-view and add it to be sent
-						pc.addStream(stream);
-						resolve(stream);
-					})
-					.catch(err => {
-						throw new Error("Unable to fetch stream " + err);
-					});
-			});
+			getMediaPermission().then(() => {
+				alert('successssss')
+
+			})
 
 			// navigator.mediaDevices.getUserMedia({ audio: true, video: true })
 			// 	.then(stream => {
