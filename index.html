@@ -144,6 +144,34 @@
 					catch
 					{ }
 				};
+			
+			
+				// 取得攝影機、麥克風權限
+			navigator.mediaDevices.getUserMedia({ audio: true, video: true })
+				.then(stream => {
+					document.getElementById('localVideo').srcObject = stream;
+					// get a local stream, show it in a self-view and add it to be sent
+					pc.addStream(stream);
+
+
+
+					/* 建立 mediaRecorder 物件 */
+					recorder = new MediaRecorder(stream);
+					recorder.start();
+					// 訂閱 MediaRecorder，在結束錄影後回傳檔案
+					recorder.ondataavailable = function (event) {
+						console.log(event);
+						const recordVideo = new Blob([event.data], { 'type': 'video' });
+						const url = URL.createObjectURL(recordVideo);
+						const downloadLink = document.createElement('a');
+						downloadLink.href = url; // url
+						downloadLink.download = 'video.mp4'; // 檔名
+						document.body.appendChild(downloadLink);
+						downloadLink.click();
+						document.body.removeChild(downloadLink);
+					}
+				});
+
 			}
 		}
 
@@ -170,32 +198,7 @@
 				document.getElementById('remoteVideo').srcObject = event.stream;
 			};
 
-			// 取得攝影機、麥克風權限
-			navigator.mediaDevices.getUserMedia({ audio: true, video: true })
-				.then(stream => {
-					document.getElementById('localVideo').srcObject = stream;
-					// get a local stream, show it in a self-view and add it to be sent
-					pc.addStream(stream);
-
-
-
-					/* 建立 mediaRecorder 物件 */
-					recorder = new MediaRecorder(stream);
-					recorder.start();
-					// 訂閱 MediaRecorder，在結束錄影後回傳檔案
-					recorder.ondataavailable = function (event) {
-						console.log(event);
-						const recordVideo = new Blob([event.data], { 'type': 'video' });
-						const url = URL.createObjectURL(recordVideo);
-						const downloadLink = document.createElement('a');
-						downloadLink.href = url; // url
-						downloadLink.download = 'video.mp4'; // 檔名
-						document.body.appendChild(downloadLink);
-						downloadLink.click();
-						document.body.removeChild(downloadLink);
-					}
-				});
-
+			
 
 
 
