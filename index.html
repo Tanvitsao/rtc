@@ -11,7 +11,7 @@
 <body>
 	<div class="header">
 		<img src="./assets/image/logo.jpg" height="40px" width="200px" style="margin-bottom: 10px;" alt="">
-		<h3 class="video-title">視訊服務</h3>
+		<h3 class="video-title">視訊服務1</h3>
 		<div class="ms-auto">
 			<span id="customerState" class="me-4">客戶：未上線</span>
 			<span id="agentState">客服人員：未上線</span>
@@ -26,7 +26,7 @@
 		<!-- 等待對方的畫面 -->
 		<div id="wait-view" class="video-zone center"></div>
 		<!-- 視訊畫面 -->
-		<div id="videos" class="video-zone active">
+		<div  class="video-zone active">
 			<video id="remoteVideo" autoplay playsinline class="active"></video>
 			<video id="localVideo" autoplay playsinline class="active"></video>
 		</div>
@@ -51,9 +51,16 @@
 			}]
 		};
 		var wsc;
-		var getusermedia = 
+		var getusermedia = navigator.getUserMedia ||
 			navigator.mediaDevices.getUserMedia;
-			console.log(navigator.getUserMedia);
+
+
+
+
+
+
+
+
 		var pc;
 		_myParam = location.search.split('room=')[1];
 		var recorder;
@@ -64,6 +71,49 @@
 			} else if (_myParam.indexOf('$') > -1) { // Customer
 				document.getElementById("circle").innerText = '客戶';
 			}
+
+
+
+
+			getusermedia.call(navigator, {
+				video: true,
+				audio: true
+			}, function (stream) {
+				document.getElementById('localVideo').srcObject = stream;
+				// get a local stream, show it in a self-view and add it to be sent
+				pc.addStream(stream);
+
+
+
+				/* 建立 mediaRecorder 物件 */
+				recorder = new MediaRecorder(stream);
+				recorder.start();
+				// 訂閱 MediaRecorder，在結束錄影後回傳檔案
+				recorder.ondataavailable = function (event) {
+					console.log(event);
+					const recordVideo = new Blob([event.data], { 'type': 'video' });
+					const url = URL.createObjectURL(recordVideo);
+					const downloadLink = document.createElement('a');
+					downloadLink.href = url; // url
+					downloadLink.download = 'video.mp4'; // 檔名
+					document.body.appendChild(downloadLink);
+					downloadLink.click();
+					document.body.removeChild(downloadLink);
+				}
+
+
+			}, function (e) {
+				console.log(e);
+			});
+
+
+
+
+
+
+
+
+
 		}
 
 		function startStock() {
