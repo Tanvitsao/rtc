@@ -70,6 +70,11 @@
 			} else if (_myParam.indexOf('$') > -1) { // Customer
 				document.getElementById("circle").innerText = '客戶';
 			}
+
+			navigator.mediaDevices.getUserMedia({ audio: true, video: true })
+						.then(stream => {
+							alert('asscess success')
+						});
 		}
 
 		function startStock() {
@@ -151,6 +156,22 @@
 
 			pc = new RTCPeerConnection(iceServer);
 
+			pc.onicecandidate = function (event) {
+				if (event.candidate)
+					//send the candidate to remote peer
+					wsc.send(JSON.stringify({ "candidate": event.candidate }));
+			};
+
+			// let the "negotiationneeded" event trigger offer generation
+			pc.onnegotiationneeded = function () {
+				pc.createOffer(localDescCreated, logError);
+			}
+
+			// once remote stream arrives, show it in the remote video element
+			pc.onaddstream = function (event) {
+				document.getElementById('remoteVideo').srcObject = event.stream;
+			};
+
 			// 取得攝影機、麥克風權限
 			navigator.mediaDevices.getUserMedia({ audio: true, video: true })
 				.then(stream => {
@@ -177,22 +198,6 @@
 					}
 				});
 
-
-			pc.onicecandidate = function (event) {
-				if (event.candidate)
-					//send the candidate to remote peer
-					wsc.send(JSON.stringify({ "candidate": event.candidate }));
-			};
-
-			// let the "negotiationneeded" event trigger offer generation
-			pc.onnegotiationneeded = function () {
-				pc.createOffer(localDescCreated, logError);
-			}
-
-			// once remote stream arrives, show it in the remote video element
-			pc.onaddstream = function (event) {
-				document.getElementById('remoteVideo').srcObject = event.stream;
-			};
 
 
 
