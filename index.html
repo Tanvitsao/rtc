@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>南山產物視訊服務</title>
+	<meta charset="utf-8">
+	<link rel="stylesheet" href="./assets/bootstrap-5.1.0/css/bootstrap.min.css">
+	<link rel="stylesheet" href="css/main.css" />
+</head>
+
+<body>
+	<div class="header">
+		<img src="./assets/image/logo.jpg" height="40px" width="200px" style="margin-bottom: 10px;" alt="">
+		<h3 class="video-title">視訊服務</h3>
+		<div class="ms-auto">
+			<span id="customerState" class="me-4">客戶：未上線</span>
+			<span id="agentState">客服人員：未上線</span>
+		</div>
+	</div>
+	<div class="gradient-bar"></div>
+	<div class="content-container center">
+		<!-- 尚未加入的畫面 -->
+		<div id="enter-view" class="video-zone center">
+			<div id="circle" class="center"></div>
+		</div>
+		<!-- 等待對方的畫面 -->
+		<div id="wait-view" class="video-zone center"></div>
+		<!-- 視訊畫面 -->
+		<div id="videos" class="video-zone active">
+			<video id="remoteVideo" autoplay playsinline class="active"></video>
+			<video id="localVideo" autoplay playsinline class="active"></video>
+		</div>
+		<div class="btn-group center">
+			<button id="join-button" onclick="startStock()">開始</button>
+			<div id="close-button" onclick="stopStock()">
+				<img src="./assets/image/close.svg" width="50" alt="">
+			</div>
+		</div>
+	</div>
+
+
+
+
+
+	<script src="./assets/bootstrap-5.1.0/js/bootstrap.min.js"></script>
+	<script>
+		var _myParam;
+		var iceServer = {
+			"iceServers": [{
+				"url": "stun:stun.l.google.com:19302"
+			}]
+		};
+		var wsc;
+		var getusermedia = navigator.getUserMedia ||
+			navigator.webkitGetUserMedia ||
+			navigator.mozGetUserMedia ||
+			navigator.msGetUserMedia;
+		var pc;
+		_myParam = location.search.split('room=')[1];
+		var recorder;
+
+		window.onload = function () {
+			if (_myParam.indexOf('@') > -1) { // Agent
+				document.getElementById("circle").innerText = '客服人員';
+			} else if (_myParam.indexOf('$') > -1) { // Customer
+				document.getElementById("circle").innerText = '客戶';
+			}
+		}
+
+		function startStock() {
+			if ("WebSocket" in window) {
+				wsc = new WebSocket("wss://lab.easontech.com.tw:4431/CSMWebAPI/websocket?serno=" + _myParam);
+
+				wsc.onopen = function (event) {
+					console.log("WebSocket connected to server");
+					document.getElementById("enter-view").style.display = 'none';
+					document.getElementById("wait-view").style.display = 'flex';
+					document.getElementById('join-button').style.display = "none";
+					document.getElementById("close-button").style.display = 'block';
+				};
+
+				wsc.onmessage = function (event) {
+					console.log(event);
+					try {
+						var message = JSON.parse(event.data);
+						if (message.State && message.State.indexOf('Online') > -1) {
+							console.log("State::" + event.data);
+
+							if (message.Serno.indexOf('@') > -1) {	//Agent
+								document.getElementById("wait-view").innerText = '等待客戶上線中...';
+
+								if (message.State.indexOf('CT') > -1) {
+									document.getElementById("customerState").innerText = '客戶：已上線';
+									if (pc) {
+										if (pc) {
+											pc.close();
+											pc = null;
+										}
+									}
+									start();
+
+								}
+								else {
+									document.getElementById("agentState").innerText = '客服人員：已上線';
+								}
+							} else if (message.Serno.indexOf('$') > -1) { //Customer
+								document.getElementById("wait-view").innerText = '等待客服人員上線中...';
+
+								if (message.State.indexOf('CS') > -1) {
+									document.getElementById("agentState").innerText = '客服人員：已上線';
+
+									if (pc) {
+										if (pc) {
+											pc.close();
+											pc = null;
+										}
+									}
+									start();
+								}
+								else {
+									document.getElementById("customerState").innerText = '客戶：已上線';
+								}
+							}
+						}
+						else if (message.sdp) {
+							console.log("Sdp::" + event.data);
+							pc.setRemoteDescription(new RTCSessionDescription(message.sdp), function () {
+								if (pc.remoteDescription.type == "offer")
+									pc.createAnswer(localDescCreated, logError);
+							}, logError);
+						} else if (message.candidate) {
+							console.log("Candidate::" + event.data);
+							pc.addIceCandidate(new RTCIceCandidate(message.candidate));
+						}
+					}
+					catch
+					{ }
+				};
+			}
+		}
+
+		// 呼叫 start() 開始建立連線
+		function start() {
+			document.getElementById("wait-view").style.display = 'none';
+			document.getElementById("videos").style.display = 'block';
+
+			pc = new RTCPeerConnection(iceServer);
+
+			pc.onicecandidate = function (event) {
+				if (event.candidate)
+					//send the candidate to remote peer
+					wsc.send(JSON.stringify({ "candidate": event.candidate }));
+			};
+
+			// let the "negotiationneeded" event trigger offer generation
+			pc.onnegotiationneeded = function () {
+				pc.createOffer(localDescCreated, logError);
+			}
+
+			// once remote stream arrives, show it in the remote video element
+			pc.onaddstream = function (event) {
+				document.getElementById('remoteVideo').srcObject = event.stream;
+			};
+
+			getusermedia.call(navigator, {
+				video: true,
+				audio: true
+			}, function (stream) {
+				document.getElementById('localVideo').srcObject = stream;
+				// get a local stream, show it in a self-view and add it to be sent
+				pc.addStream(stream);
+
+
+
+				/* 建立 mediaRecorder 物件 */
+				recorder = new MediaRecorder(stream);
+				recorder.start();
+				// 訂閱 MediaRecorder，在結束錄影後回傳檔案
+				recorder.ondataavailable = function (event) {
+					console.log(event);
+					const recordVideo = new Blob([event.data], { 'type': 'video' });
+					const url = URL.createObjectURL(recordVideo);
+					const downloadLink = document.createElement('a');
+					downloadLink.href = url; // url
+					downloadLink.download = 'video.mp4'; // 檔名
+					document.body.appendChild(downloadLink);
+					downloadLink.click();
+					document.body.removeChild(downloadLink);
+				}
+
+
+			}, function (e) {
+				console.log(e);
+			});
+		}
+
+		function stopStock() {
+			recorder.stop();
+			console.log(recorder);
+			wsc.close();
+			document.getElementById("videos").style.display = 'none';
+			document.getElementById("enter-view").style.display = 'flex';
+			document.getElementById("wait-view").style.display = 'none';
+			document.getElementById('join-button').style.display = "block";
+			document.getElementById("close-button").style.display = 'none';
+			if (_myParam.indexOf('@') > -1) { // Agent
+				document.getElementById("agentState").innerText = '客服人員：未上線';
+			} else if (_myParam.indexOf('$') > -1) { // Customer
+				document.getElementById("customerState").innerText = '客戶：未上線';
+			}
+		}
+
+		function localDescCreated(desc) {
+			pc.setLocalDescription(desc, function () {
+				wsc.send(JSON.stringify({ "sdp": pc.localDescription }));
+			}, logError);
+		}
+
+		function logError(error) {
+			console.log(error.name + ": " + error.message);
+		}
+
+	</script>
+</body>
+
+</html>

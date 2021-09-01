@@ -1,0 +1,131 @@
+body {
+    color: #4a4a4a;
+}
+
+button {
+    background: #0174c1;
+    color: white;
+    font-size: 14px;
+    border: none;
+    border-radius: 2px;
+    -webkit-box-shadow: 1px 1px 5px 0 rgb(0 0 0 / 50%);
+    -moz-box-shadow: 1px 1px 5px 0 rgba(0, 0, 0, 0.5);
+    box-shadow: 1px 1px 5px 0 rgb(0 0 0 / 50%);
+    color: white;
+    height: 2.75em;
+    width: 8em;
+    cursor: pointer;
+}
+
+#close-button {
+    cursor: pointer;
+    display: none;
+}
+
+/* header start */
+.header {
+    height: 70px;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+}
+.header .video-title {
+    font-size: 22px;
+    font-weight: 500;
+    margin: 0 0 0 24px;
+}
+/* Nav 下一條藍色的東西 */
+.gradient-bar {
+    height: 5px;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-image: linear-gradient(to right, #2aa9e3, #1d8ecb, #1474b3, #105b9a, #0e4380);
+}
+/* header end */
+.center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.content-container {
+    height: calc(100vh - 70px - 5px);
+    background: #f4f4f4;
+}
+
+.content-container .video-zone {
+    width: 80%;
+    background: #fff;
+    height: 80%;
+    position: relative;
+}
+
+#wait-view {
+    display: none;
+}
+
+#circle {
+    background-image: linear-gradient(to bottom, #5c9ed7, #76d5ca);
+    height: 120px;
+    width: 120px;
+    border-radius: 50%;
+    color: white;
+    font-size: 24px;
+}
+
+.btn-group {
+    position: absolute;
+    bottom: 14px;
+}
+
+#videos.active {
+    -moz-transform: rotateY(180deg);
+    -ms-transform: rotateY(180deg);
+    -o-transform: rotateY(180deg);
+    webkit-transform: rotateY(180deg);
+    /* transform: rotateY(180deg); */
+}
+#videos {
+    display: none;
+    font-size: 0;
+    pointer-events: none;
+    transition: all 1s;
+}
+/* video { */
+/* max-width: 100%; */
+/* width: 600px; */
+/* } */
+#remoteVideo.active {
+    opacity: 1;
+    z-index: 1;
+}
+#remoteVideo {
+    display: block;
+    height: 100%;
+    width: 100%;
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: cover;
+    opacity: 0;
+    -moz-transform: rotateY(180deg);
+    -ms-transform: rotateY(180deg);
+    -o-transform: rotateY(180deg);
+    -webkit-transform: rotateY(180deg);
+    transform: rotateY(180deg);
+    transition: opacity 1s;
+}
+
+#localVideo.active {
+    opacity: 1;
+    z-index: 2;
+}
+#localVideo {
+    border: 1px solid gray;
+    bottom: 3%;
+    right: 3%;
+    max-height: 30%;
+    max-width: 30%;
+    opacity: 0;
+    position: absolute;
+    transition: opacity 1s;
+}
