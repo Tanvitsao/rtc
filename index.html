@@ -11,7 +11,7 @@
 <body>
 	<div class="header">
 		<img src="./assets/image/logo.jpg" height="40px" width="200px" style="margin-bottom: 10px;" alt="">
-		<h3 class="video-title">視訊服務6</h3>
+		<h3 class="video-title">視訊服務7</h3>
 		<div class="ms-auto">
 			<span id="customerState" class="me-4">客戶：未上線</span>
 			<span id="agentState">客服人員：未上線</span>
@@ -24,7 +24,7 @@
 			<div id="circle" class="center"></div>
 		</div>
 		<!-- 等待對方的畫面 -->
-		<div id="wait-view" class="video-zone center"></div>
+		<!-- <div id="wait-view" class="video-zone center"></div> -->
 		<!-- 視訊畫面 -->
 		<div id="videos" class="video-zone active">
 			<video id="remoteVideo" autoplay playsinline class="active"></video>
@@ -81,7 +81,8 @@
 				wsc.onopen = function (event) {
 					console.log("WebSocket connected to server");
 					document.getElementById("enter-view").style.display = 'none';
-					document.getElementById("wait-view").style.display = 'flex';
+					// document.getElementById("wait-view").style.display = 'flex';
+					document.getElementById("videos").style.display = 'flex';
 					document.getElementById('join-button').style.display = "none";
 					document.getElementById("close-button").style.display = 'block';
 				};
@@ -94,7 +95,7 @@
 							console.log("State::" + event.data);
 
 							if (message.Serno.indexOf('@') > -1) {	//Agent
-								document.getElementById("wait-view").innerText = '等待客戶上線中...';
+								// document.getElementById("wait-view").innerText = '等待客戶上線中...';
 
 								if (message.State.indexOf('CT') > -1) {
 									document.getElementById("customerState").innerText = '客戶：已上線';
@@ -111,7 +112,7 @@
 									document.getElementById("agentState").innerText = '客服人員：已上線';
 								}
 							} else if (message.Serno.indexOf('$') > -1) { //Customer
-								document.getElementById("wait-view").innerText = '等待客服人員上線中...';
+								// document.getElementById("wait-view").innerText = '等待客服人員上線中...';
 
 								if (message.State.indexOf('CS') > -1) {
 									document.getElementById("agentState").innerText = '客服人員：已上線';
@@ -148,8 +149,8 @@
 
 		// 呼叫 start() 開始建立連線
 		function start() {
-			document.getElementById("wait-view").style.display = 'none';
-			document.getElementById("videos").style.display = 'block';
+			// document.getElementById("wait-view").style.display = 'none';
+			// document.getElementById("videos").style.display = 'block';
 
 			pc = new RTCPeerConnection(iceServer);
 
@@ -170,35 +171,30 @@
 			};
 
 			// 取得攝影機、麥克風權限
-			getMediaPermission().then(() => {
-				alert('successssss')
-
-			})
-
-			// navigator.mediaDevices.getUserMedia({ audio: true, video: true })
-			// 	.then(stream => {
-			// 		document.getElementById('localVideo').srcObject = stream;
-			// 		// get a local stream, show it in a self-view and add it to be sent
-			// 		pc.addStream(stream);
+			navigator.mediaDevices.getUserMedia({ audio: true, video: true })
+				.then(stream => {
+					document.getElementById('localVideo').srcObject = stream;
+					// get a local stream, show it in a self-view and add it to be sent
+					pc.addStream(stream);
 
 
 
-			// 		/* 建立 mediaRecorder 物件 */
-			// 		recorder = new MediaRecorder(stream);
-			// 		recorder.start();
-			// 		// 訂閱 MediaRecorder，在結束錄影後回傳檔案
-			// 		recorder.ondataavailable = function (event) {
-			// 			console.log(event);
-			// 			const recordVideo = new Blob([event.data], { 'type': 'video' });
-			// 			const url = URL.createObjectURL(recordVideo);
-			// 			const downloadLink = document.createElement('a');
-			// 			downloadLink.href = url; // url
-			// 			downloadLink.download = 'video.mp4'; // 檔名
-			// 			document.body.appendChild(downloadLink);
-			// 			downloadLink.click();
-			// 			document.body.removeChild(downloadLink);
-			// 		}
-			// 	});
+					/* 建立 mediaRecorder 物件 */
+					recorder = new MediaRecorder(stream);
+					recorder.start();
+					// 訂閱 MediaRecorder，在結束錄影後回傳檔案
+					recorder.ondataavailable = function (event) {
+						console.log(event);
+						const recordVideo = new Blob([event.data], { 'type': 'video' });
+						const url = URL.createObjectURL(recordVideo);
+						const downloadLink = document.createElement('a');
+						downloadLink.href = url; // url
+						downloadLink.download = 'video.mp4'; // 檔名
+						document.body.appendChild(downloadLink);
+						downloadLink.click();
+						document.body.removeChild(downloadLink);
+					}
+				});
 
 
 
@@ -222,7 +218,7 @@
 			wsc.close();
 			document.getElementById("videos").style.display = 'none';
 			document.getElementById("enter-view").style.display = 'flex';
-			document.getElementById("wait-view").style.display = 'none';
+			// document.getElementById("wait-view").style.display = 'none';
 			document.getElementById('join-button').style.display = "block";
 			document.getElementById("close-button").style.display = 'none';
 			if (_myParam.indexOf('@') > -1) { // Agent
