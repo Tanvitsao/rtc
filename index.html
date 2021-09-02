@@ -11,7 +11,7 @@
 <body>
 	<div class="header">
 		<img src="./assets/image/logo.jpg" height="40px" width="200px" style="margin-bottom: 10px;" alt="">
-		<h3 class="video-title">視訊服務1</h3>
+		<h3 class="video-title">視訊服務2</h3>
 		<div class="ms-auto">
 			<span id="customerState" class="me-4">客戶：未上線</span>
 			<span id="agentState">客服人員：未上線</span>
@@ -52,6 +52,12 @@
 		let localstream;
 		/* RTCPeerConnection */
 		let pc;
+		/* iceServer */
+		const iceServer = {
+			"iceServers": [{
+				"url": "stun:stun.l.google.com:19302" // Google's public STUN server
+			}]
+		};
 		/* 本地/遠端視訊 element */
 		const localVideoEl = document.getElementById('localVideo');
 		const remoteVideoEl = document.getElementById('remoteVideo');
@@ -114,7 +120,7 @@
 								}
 							} else if (message.Serno.indexOf('$') > -1) { //Customer
 								// document.getElementById("wait-view").innerText = '等待客服人員上線中...';
-								
+
 								if (message.State.indexOf('CS') > -1) {
 									document.getElementById("agentState").innerText = '客服人員：已上線';
 									startWebRTC();
@@ -164,7 +170,6 @@
 
 		// 增加本地流
 		function addLocalStream() {
-			alert('addLocalStream')
 			pc.addStream(localstream);
 		};
 
@@ -193,11 +198,6 @@
 
 		// 建立 P2P 連接
 		function createPeerConnection() {
-			const iceServer = {
-				"iceServers": [{
-					"url": "stun:stun.l.google.com:19302" // Google's public STUN server
-				}]
-			};
 			if (pc) {
 				pc.close();
 				pc = null;
