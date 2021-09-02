@@ -31,8 +31,8 @@
 			<video id="localVideo" autoplay playsinline class="active"></video>
 		</div>
 		<div class="btn-group center">
-			<button id="join-button" onclick="startStock()">開始</button>
-			<div id="close-button" onclick="stopStock()">
+			<button id="join-button" onclick="onStartClick()">開始</button>
+			<div id="close-button" onclick="onStopClick()">
 				<img src="./assets/image/close.svg" width="50" alt="">
 			</div>
 		</div>
@@ -44,33 +44,33 @@
 
 	<script src="./assets/bootstrap-5.1.0/js/bootstrap.min.js"></script>
 	<script>
-		var _myParam;
-		var iceServer = {
-			"iceServers": [{
-				"url": "stun:stun.l.google.com:19302"
-			}]
-		};
-		var wsc;
-		async function getMediaPermission() {
-			await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
-		}
-
-
-
-
-
-
-
-
-		var pc;
-		_myParam = location.search.split('room=')[1];
-
+		/* web socket */
+		let wsc;
+		/* url prarm */
+		let _myParam = location.search.split('room=')[1];
+		/* 本地流 */
 		let localstream;
+		/* RTCPeerConnection */
+		let pc;
+		/* 本地/遠端視訊 element */
 		const localVideoEl = document.getElementById('localVideo');
-		const remoteVideo = document.getElementById('remoteVideo');
+		const remoteVideoEl = document.getElementById('remoteVideo');
+		/* 錄音錄影 */
 		let recorder;
 
+
+		// window 初始化
 		window.onload = function () {
+			getIdentity();
+		}
+
+		// window 重整
+		window.onbeforeunload = function () {
+			closeWebSocketConnection();
+		}
+
+		// 判斷身分為客服人員或客戶
+		function getIdentity() {
 			if (_myParam.indexOf('@') > -1) { // Agent
 				document.getElementById("circle").innerText = '客服人員';
 			} else if (_myParam.indexOf('$') > -1) { // Customer
@@ -78,39 +78,36 @@
 			}
 		}
 
-		function startStock() {
+		/**
+		 * 建立 web socket 連線
+		 * 因一連線就會上線，所以在點選開始之後再建立連線
+		 */
+		function createWebSocketConnection() {
 			if ("WebSocket" in window) {
 				wsc = new WebSocket("wss://lab.easontech.com.tw:4431/CSMWebAPI/websocket?serno=" + _myParam);
-
 				wsc.onopen = function (event) {
 					console.log("WebSocket connected to server");
-					document.getElementById("enter-view").style.display = 'none';
-					// document.getElementById("wait-view").style.display = 'flex';
-					document.getElementById("videos").style.display = 'flex';
-					document.getElementById('join-button').style.display = "none";
-					document.getElementById("close-button").style.display = 'block';
+
 				};
 
 				wsc.onmessage = function (event) {
-					console.log(event);
 					try {
-						var message = JSON.parse(event.data);
+						const message = JSON.parse(event.data);
+						console.log(message);
+
 						if (message.State && message.State.indexOf('Online') > -1) {
 							console.log("State::" + event.data);
+							// 取得攝影機、麥克風權限
+							createMedia();
+							document.getElementById("enter-view").style.display = 'none';
+							document.getElementById("videos").style.display = 'block';
 
 							if (message.Serno.indexOf('@') > -1) {	//Agent
 								// document.getElementById("wait-view").innerText = '等待客戶上線中...';
 
 								if (message.State.indexOf('CT') > -1) {
 									document.getElementById("customerState").innerText = '客戶：已上線';
-									if (pc) {
-										if (pc) {
-											pc.close();
-											pc = null;
-										}
-									}
-									start();
-
+									startWebRTC();
 								}
 								else {
 									document.getElementById("agentState").innerText = '客服人員：已上線';
@@ -120,14 +117,7 @@
 
 								if (message.State.indexOf('CS') > -1) {
 									document.getElementById("agentState").innerText = '客服人員：已上線';
-
-									if (pc) {
-										if (pc) {
-											pc.close();
-											pc = null;
-										}
-									}
-									start();
+									startWebRTC();
 								}
 								else {
 									document.getElementById("customerState").innerText = '客戶：已上線';
@@ -151,12 +141,33 @@
 			}
 		}
 
-		// 呼叫 start() 開始建立連線
-		async function start() {
-			// document.getElementById("wait-view").style.display = 'none';
-			// document.getElementById("videos").style.display = 'block';
+		// 結束 web socket 連線
+		function closeWebSocketConnection() {
+			wsc.close();
+		}
 
-			pc = new RTCPeerConnection(iceServer);
+		// 點選開始
+		function onStartClick() {
+			createWebSocketConnection();
+		}
+
+		// 初始化影像/聲音
+		async function createMedia() {
+			// 儲存本地流到全域
+			localstream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+			localVideoEl.srcObject = localstream;
+			addLocalStream();
+		};
+
+		// 增加本地流
+		function addLocalStream() {
+			console.log(pc);
+			pc.addStream(localstream);
+		};
+
+		// 呼叫 startWebRTC() 開始建立連線
+		async function startWebRTC() {
+			createPeerConnection();
 
 			pc.onicecandidate = function (event) {
 				if (event.candidate)
@@ -171,47 +182,12 @@
 
 			// once remote stream arrives, show it in the remote video element
 			pc.onaddstream = function (event) {
-				console.log('remote: ', event);
-				document.getElementById('remoteVideo').srcObject = event.stream;
+				if (!remoteVideoEl.srcObject && event.stream) {
+					remoteVideoEl.srcObject = event.stream;
+					console.log('接收流並顯示於遠端視訊！', event);
+				}
 			};
-
-
-			// 取得攝影機、麥克風權限
-			navigator.mediaDevices.getUserMedia({ audio: true, video: true })
-				.then(stream => {
-					document.getElementById('localVideo').srcObject = stream;
-					// get a local stream, show it in a self-view and add it to be sent
-					pc.addStream(stream);
-
-
-
-					/* 建立 mediaRecorder 物件 */
-					recorder = new MediaRecorder(stream);
-					recorder.start();
-					// 訂閱 MediaRecorder，在結束錄影後回傳檔案
-					recorder.ondataavailable = function (event) {
-						console.log(event);
-						const recordVideo = new Blob([event.data], { 'type': 'video' });
-						const url = URL.createObjectURL(recordVideo);
-						const downloadLink = document.createElement('a');
-						downloadLink.href = url; // url
-						downloadLink.download = 'video.mp4'; // 檔名
-						document.body.appendChild(downloadLink);
-						downloadLink.click();
-						document.body.removeChild(downloadLink);
-					}
-				});
-
-
-
 		}
-
-		// 初始化影像/聲音
-		async function createMedia() {
-			// 儲存本地流到全域
-			localstream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
-			localVideoEl.srcObject = localstream;
-		};
 
 		// 建立 P2P 連接
 		function createPeerConnection() {
@@ -220,59 +196,18 @@
 					"url": "stun:stun.l.google.com:19302" // Google's public STUN server
 				}]
 			};
+			if (pc) {
+				pc.close();
+				pc = null;
+			}
 			pc = new RTCPeerConnection(iceServer);
 		};
 
-		// 增加本地流
-		function addLocalStream() {
-			pc.addStream(localstream);
-		};
-
-
-		// 監聽 ICE Server
-		function onIceCandidates() {
-			// 找尋到 ICE 候選位置後，送去 Server 與另一位配對
-			pc.onicecandidate = ({ candidate }) => {
-				if (!candidate) { return; }
-				console.log('onIceCandidate => ', candidate);
-				socket.emit("peerconnectSignaling", { candidate });
-			};
-		};
-
-		// 監聽 ICE 連接狀態
-		function onIceconnectionStateChange() {
-			pc.oniceconnectionstatechange = (evt) => {
-				console.log('ICE 伺服器狀態變更 => ', evt.target.iceConnectionState);
-			};
-		}
-
-		// 監聽是否有流傳入，如果有的話就顯示影像
-		function onAddStream() {
-			pc.onaddstream = (event) => {
-				if (!remoteVideo.srcObject && event.stream) {
-					remoteVideo.srcObject = event.stream;
-					console.log('接收流並顯示於遠端視訊！', event);
-				}
-			}
-		}
-
-		function initPeerConnection() {
-			createMedia();
-			// getAudioVideo();
-			createPeerConnection();
-			addLocalStream();
-			onIceCandidates();
-			onIceconnectionStateChange();
-			onAddStream();
-		}
-
-
-
-
-		function stopStock() {
+		function onStopClick() {
 			recorder.stop();
 			console.log(recorder);
-			wsc.close();
+			closeWebSocketConnection();
+
 			document.getElementById("videos").style.display = 'none';
 			document.getElementById("enter-view").style.display = 'flex';
 			// document.getElementById("wait-view").style.display = 'none';
