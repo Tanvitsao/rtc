@@ -64,7 +64,11 @@
 
 		var pc;
 		_myParam = location.search.split('room=')[1];
-		var recorder;
+
+		let localstream;
+		const localVideoEl = document.getElementById('localVideo');
+		const remoteVideo = document.getElementById('remoteVideo');
+		let recorder;
 
 		window.onload = function () {
 			if (_myParam.indexOf('@') > -1) { // Agent
@@ -144,9 +148,35 @@
 					catch
 					{ }
 				};
-			
-			
-				// 取得攝影機、麥克風權限
+			}
+		}
+
+		// 呼叫 start() 開始建立連線
+		async function start() {
+			// document.getElementById("wait-view").style.display = 'none';
+			// document.getElementById("videos").style.display = 'block';
+
+			pc = new RTCPeerConnection(iceServer);
+
+			pc.onicecandidate = function (event) {
+				if (event.candidate)
+					//send the candidate to remote peer
+					wsc.send(JSON.stringify({ "candidate": event.candidate }));
+			};
+
+			// let the "negotiationneeded" event trigger offer generation
+			pc.onnegotiationneeded = function () {
+				pc.createOffer(localDescCreated, logError);
+			}
+
+			// once remote stream arrives, show it in the remote video element
+			pc.onaddstream = function (event) {
+				console.log('remote: ', event);
+				document.getElementById('remoteVideo').srcObject = event.stream;
+			};
+
+
+			// 取得攝影機、麥克風權限
 			navigator.mediaDevices.getUserMedia({ audio: true, video: true })
 				.then(stream => {
 					document.getElementById('localVideo').srcObject = stream;
@@ -172,48 +202,72 @@
 					}
 				});
 
-			}
+
+
 		}
 
-		// 呼叫 start() 開始建立連線
-		function start() {
-			// document.getElementById("wait-view").style.display = 'none';
-			// document.getElementById("videos").style.display = 'block';
+		// 初始化影像/聲音
+		async function createMedia() {
+			// 儲存本地流到全域
+			localstream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+			localVideoEl.srcObject = localstream;
+		};
 
+		// 建立 P2P 連接
+		function createPeerConnection() {
+			const iceServer = {
+				"iceServers": [{
+					"url": "stun:stun.l.google.com:19302" // Google's public STUN server
+				}]
+			};
 			pc = new RTCPeerConnection(iceServer);
+		};
 
-			pc.onicecandidate = function (event) {
-				if (event.candidate)
-					//send the candidate to remote peer
-					wsc.send(JSON.stringify({ "candidate": event.candidate }));
+		// 增加本地流
+		function addLocalStream() {
+			pc.addStream(localstream);
+		};
+
+
+		// 監聽 ICE Server
+		function onIceCandidates() {
+			// 找尋到 ICE 候選位置後，送去 Server 與另一位配對
+			pc.onicecandidate = ({ candidate }) => {
+				if (!candidate) { return; }
+				console.log('onIceCandidate => ', candidate);
+				socket.emit("peerconnectSignaling", { candidate });
 			};
+		};
 
-			// let the "negotiationneeded" event trigger offer generation
-			pc.onnegotiationneeded = function () {
-				pc.createOffer(localDescCreated, logError);
-			}
-
-			// once remote stream arrives, show it in the remote video element
-			pc.onaddstream = function (event) {
-				document.getElementById('remoteVideo').srcObject = event.stream;
+		// 監聽 ICE 連接狀態
+		function onIceconnectionStateChange() {
+			pc.oniceconnectionstatechange = (evt) => {
+				console.log('ICE 伺服器狀態變更 => ', evt.target.iceConnectionState);
 			};
-
-			
-
-
-
-
-			// getusermedia.call(navigator, {
-			// 	video: true,
-			// 	audio: true
-			// }, function (stream) {
-			// 	document.getElementById('localVideo').srcObject = stream;
-			// 	// get a local stream, show it in a self-view and add it to be sent
-			// 	pc.addStream(stream);
-			// }, function (e) {
-			// 	console.log(e);
-			// });
 		}
+
+		// 監聽是否有流傳入，如果有的話就顯示影像
+		function onAddStream() {
+			pc.onaddstream = (event) => {
+				if (!remoteVideo.srcObject && event.stream) {
+					remoteVideo.srcObject = event.stream;
+					console.log('接收流並顯示於遠端視訊！', event);
+				}
+			}
+		}
+
+		function initPeerConnection() {
+			createMedia();
+			// getAudioVideo();
+			createPeerConnection();
+			addLocalStream();
+			onIceCandidates();
+			onIceconnectionStateChange();
+			onAddStream();
+		}
+
+
+
 
 		function stopStock() {
 			recorder.stop();
