@@ -100,7 +100,7 @@
 					try {
 						const message = JSON.parse(event.data);
 						console.log(message);
-						startWebRTC();
+
 						if (message.State && message.State.indexOf('Online') > -1) {
 							console.log("State::" + event.data);
 							document.getElementById("enter-view").style.display = 'none';
@@ -111,7 +111,6 @@
 
 								if (message.State.indexOf('CT') > -1) {
 									document.getElementById("customerState").innerText = '客戶：已上線';
-									// startWebRTC();
 								}
 								else {
 									// 取得攝影機、麥克風權限
@@ -123,7 +122,6 @@
 
 								if (message.State.indexOf('CS') > -1) {
 									document.getElementById("agentState").innerText = '客服人員：已上線';
-									// startWebRTC();
 								}
 								else {
 									// 取得攝影機、麥克風權限
@@ -158,6 +156,7 @@
 		function onStartClick() {
 			createWebSocketConnection();
 			createPeerConnection();
+			startWebRTC();
 		}
 
 		// 初始化影像/聲音
