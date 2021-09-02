@@ -164,13 +164,11 @@
 
 		// 增加本地流
 		function addLocalStream() {
-			console.log(pc);
 			pc.addStream(localstream);
 		};
 
 		// 呼叫 startWebRTC() 開始建立連線
 		async function startWebRTC() {
-			alert(pc)
 			pc.onicecandidate = function (event) {
 				if (event.candidate)
 					//send the candidate to remote peer
@@ -204,6 +202,7 @@
 				pc = null;
 			}
 			pc = new RTCPeerConnection(iceServer);
+			alert(pc);
 		};
 
 		function onStopClick() {
