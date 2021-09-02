@@ -11,7 +11,7 @@
 <body>
 	<div class="header">
 		<img src="./assets/image/logo.jpg" height="40px" width="200px" style="margin-bottom: 10px;" alt="">
-		<h3 class="video-title">視訊服務5</h3>
+		<h3 class="video-title">視訊服務6</h3>
 		<div class="ms-auto">
 			<span id="customerState" class="me-4">客戶：未上線</span>
 			<span id="agentState">客服人員：未上線</span>
@@ -170,7 +170,8 @@
 
 		// 增加本地流
 		function addLocalStream() {
-			pc.addStream(localstream);
+			// pc.addStream(localstream);
+			localstream.getTracks().forEach(track => pc.addTrack(track, localstream));
 		};
 
 		// 呼叫 startWebRTC() 開始建立連線
@@ -202,7 +203,6 @@
 				pc.close();
 				pc = null;
 			}
-			RTCPeerConnection = window.RTCPeerConnection || window.webkitRTCPeerConnection;
 			pc = new RTCPeerConnection(iceServer);
 		};
 
