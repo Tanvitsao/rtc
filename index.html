@@ -164,6 +164,7 @@
 
 		// 增加本地流
 		function addLocalStream() {
+			alert('addLocalStream')
 			pc.addStream(localstream);
 		};
 
@@ -201,9 +202,7 @@
 				pc.close();
 				pc = null;
 			}
-			alert('aaa')
 			pc = new RTCPeerConnection(iceServer);
-			alert(pc);
 		};
 
 		function onStopClick() {
