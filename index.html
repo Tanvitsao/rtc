@@ -11,7 +11,7 @@
 <body>
 	<div class="header">
 		<img src="./assets/image/logo.jpg" height="40px" width="200px" style="margin-bottom: 10px;" alt="">
-		<h3 class="video-title">視訊服務8</h3>
+		<h3 class="video-title">視訊服務9</h3>
 		<div class="ms-auto">
 			<span id="customerState" class="me-4">客戶：未上線</span>
 			<span id="agentState">客服人員：未上線</span>
@@ -101,7 +101,8 @@
 						const message = JSON.parse(event.data);
 						console.log(message);
 
-						if (message.State && message.State.indexOf('Online') > -1) {
+						setTimeout(() => {
+							if (message.State && message.State.indexOf('Online') > -1) {
 							console.log("State::" + event.data);
 							document.getElementById("enter-view").style.display = 'none';
 							document.getElementById("videos").style.display = 'block';
@@ -142,6 +143,7 @@
 							console.log("Candidate::" + event.data);
 							pc.addIceCandidate(new RTCIceCandidate(message.candidate));
 						}
+						}, 1000);
 					}
 					catch
 					{ }
