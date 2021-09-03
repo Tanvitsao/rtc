@@ -17,6 +17,10 @@ button {
     cursor: pointer;
 }
 
+video {
+    transform: scaleX(-1);
+}
+
 #close-button {
     cursor: pointer;
     display: none;
