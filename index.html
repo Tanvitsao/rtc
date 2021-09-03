@@ -11,7 +11,7 @@
 <body>
 	<div class="header">
 		<img src="./assets/image/logo.jpg" height="40px" width="200px" style="margin-bottom: 10px;" alt="">
-		<h3 class="video-title">視訊服務4</h3>
+		<h3 class="video-title">視訊服務5</h3>
 		<div class="ms-auto">
 			<span id="customerState" class="me-4">客戶：未上線</span>
 			<span id="agentState">客服人員：未上線</span>
@@ -130,6 +130,7 @@
 						}
 						else if (message.sdp) {
 							console.log("Sdp::" + event.data);
+							console.log(pc);
 							pc.setRemoteDescription(new RTCSessionDescription(message.sdp), function () {
 								if (pc.remoteDescription.type == "offer") {
 									pc.createAnswer(localDescCreated, logError);
