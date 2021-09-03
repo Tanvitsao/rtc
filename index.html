@@ -11,7 +11,7 @@
 <body>
 	<div class="header">
 		<img src="./assets/image/logo.jpg" height="40px" width="200px" style="margin-bottom: 10px;" alt="">
-		<h3 class="video-title">視訊服務10</h3>
+		<h3 class="video-title">視訊服務</h3>
 		<div class="ms-auto">
 			<span id="customerState" class="me-4">客戶：未上線</span>
 			<span id="agentState">客服人員：未上線</span>
@@ -70,11 +70,6 @@
 			getIdentity();
 		}
 
-		// window 重整
-		window.onbeforeunload = function () {
-			closeWebSocketConnection();
-		}
-
 		// 判斷身分為客服人員或客戶
 		function getIdentity() {
 			if (_myParam.indexOf('@') > -1) { // Agent
@@ -111,8 +106,6 @@
 
 								if (message.State.indexOf('CT') > -1) {
 									document.getElementById("customerState").innerText = '客戶：已上線';
-									createPeerConnection();
-									startWebRTC();
 								}
 								else {
 									// 取得攝影機、麥克風權限
@@ -124,8 +117,6 @@
 
 								if (message.State.indexOf('CS') > -1) {
 									document.getElementById("agentState").innerText = '客服人員：已上線';
-									createPeerConnection();
-									startWebRTC();
 								}
 								else {
 									// 取得攝影機、麥克風權限
@@ -159,8 +150,8 @@
 		// 點選開始
 		function onStartClick() {
 			createWebSocketConnection();
-			// createPeerConnection();
-			// startWebRTC();
+			createPeerConnection();
+			startWebRTC();
 		}
 
 		// 初始化影像/聲音
@@ -168,7 +159,7 @@
 			// 儲存本地流到全域
 			localstream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
 			localVideoEl.srcObject = localstream;
-			// addLocalStream();
+			addLocalStream();
 		};
 
 		// 增加本地流
@@ -198,7 +189,6 @@
 					console.log('接收流並顯示於遠端視訊！', event);
 				}
 			};
-			addLocalStream();
 		}
 
 		// 建立 P2P 連接
