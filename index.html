@@ -155,8 +155,7 @@
 		// 點選開始
 		function onStartClick() {
 			createWebSocketConnection();
-			createPeerConnection();
-			startWebRTC();
+			setupPeerConnection();
 		}
 
 		// 初始化影像/聲音
@@ -172,6 +171,11 @@
 			// pc.addStream(localstream);
 			localstream.getTracks().forEach(track => pc.addTrack(track, localstream));
 		};
+
+		function setupPeerConnection() {
+			createPeerConnection();
+			startWebRTC();
+		}
 
 		// 呼叫 startWebRTC() 開始建立連線
 		async function startWebRTC() {
@@ -272,7 +276,8 @@
 		function logError(error) {
 			console.log(error);
 			console.log(error.name + ": " + error.message);
-			createPeerConnection();
+			closePeerConnection();
+			setupPeerConnection();
 		}
 
 	</script>
