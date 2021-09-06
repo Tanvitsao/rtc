@@ -11,7 +11,7 @@
 <body>
 	<div class="header">
 		<img src="./assets/image/logo.jpg" height="40px" width="200px" style="margin-bottom: 10px;" alt="">
-		<h3 class="video-title">視訊服務7</h3>
+		<h3 class="video-title">視訊服務8</h3>
 		<div class="ms-auto">
 			<span id="customerState" class="me-4">客戶：未上線</span>
 			<span id="agentState">客服人員：未上線</span>
@@ -64,7 +64,6 @@
 		const remoteVideoEl = document.getElementById('remoteVideo');
 		/* 錄音錄影 */
 		let recorder;
-
 
 		// window 初始化
 		window.onload = function () {
@@ -276,8 +275,14 @@
 		function logError(error) {
 			console.log(error);
 			console.log(error.name + ": " + error.message);
-			closePeerConnection();
-			setupPeerConnection();
+			// closePeerConnection();
+			// setupPeerConnection();
+			// this.signaller.signal({
+			// 	type: 'restart',
+			// 	to: this.otherClient.id,
+			// 	from: this.client.id
+			// })
+			
 		}
 
 	</script>
