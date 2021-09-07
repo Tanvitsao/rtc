@@ -247,7 +247,7 @@
 			// 訂閱 MediaRecorder，在結束錄影後回傳檔案
 			recorder.ondataavailable = function (event) {
 				console.log(event);
-				aler(event.data)
+				alert(event.data)
 				const recordVideo = new Blob([event.data], { 'type': 'video' });
 				const url = URL.createObjectURL(recordVideo);
 				const downloadLink = document.createElement('a');
