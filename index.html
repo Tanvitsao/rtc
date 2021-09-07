@@ -94,8 +94,6 @@
 					try {
 
 						const message = JSON.parse(event.data);
-						console.log(message);
-
 						if (message.State && message.State.indexOf('Online') > -1) {
 							console.log("State::" + event.data);
 							document.getElementById("enter-view").style.display = 'none';
@@ -132,8 +130,6 @@
 						else if (message.sdp) {
 							console.log("Sdp::" + event.data);
 							pc.setRemoteDescription(new RTCSessionDescription(message.sdp), function () {
-								console.log('type:', pc.remoteDescription.type);
-
 								if (pc.remoteDescription.type == "offer") {
 									pc.createAnswer(localDescCreated, logError);
 								}
@@ -162,7 +158,6 @@
 
 		// 初始化影像/聲音
 		async function createMedia() {
-			console.log('初始化影像');
 			// 儲存本地流到全域
 			localstream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
 			if (!localVideoEl.srcObject && localstream) {
@@ -187,7 +182,6 @@
 
 		// 呼叫 startWebRTC() 開始建立連線
 		async function startWebRTC() {
-			console.log(pc);
 			pc.onicecandidate = function (event) {
 				if (event.candidate) {
 					//send the candidate to remote peer
@@ -207,7 +201,6 @@
 			// once remote stream arrives, show it in the remote video element
 			pc.ontrack = function (event) {
 				console.log('remote: ', event);
-				console.log(localVideoEl.srcObject);
 				if (!remoteVideoEl.srcObject && event.streams) {
 					remoteVideoEl.srcObject = event.streams[0];
 					console.log('接收流並顯示於遠端視訊！', event);
@@ -289,10 +282,7 @@
 		}
 
 		function logError(error) {
-			console.log(error);
 			console.log(error.name + ": " + error.message);
-			// closePeerConnection();
-			// setupPeerConnection();
 		}
 
 	</script>
