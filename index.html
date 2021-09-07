@@ -32,6 +32,7 @@
 		</div>
 		<div class="btn-group center">
 			<button id="join-button" onclick="onStartClick()">開始</button>
+			<button id="record-button" onclick="onRecordClick()">錄製</button>
 			<div id="close-button" onclick="onStopClick()">
 				<img src="./assets/image/close.svg" width="50" alt="">
 			</div>
@@ -112,6 +113,7 @@
 									// 取得攝影機、麥克風權限
 									createMedia();
 									document.getElementById("agentState").innerText = '客服人員：已上線';
+									document.getElementById("record-button").style.display = 'block';
 								}
 							} else if (message.Serno.indexOf('$') > -1) { //Customer
 								// document.getElementById("wait-view").innerText = '等待客服人員上線中...';
@@ -204,7 +206,6 @@
 				if (!remoteVideoEl.srcObject && event.streams) {
 					remoteVideoEl.srcObject = event.streams[0];
 					console.log('接收流並顯示於遠端視訊！', event);
-					// startRecorder();
 				}
 			};
 		}
@@ -233,6 +234,36 @@
 				localstream = null;
 			}
 		};
+
+		function onRecordClick() {
+			startCapture();
+		}
+
+		async function startCapture() {
+			const displayMediaOptions = {
+				video: {
+					cursor: "always"
+				},
+				audio: false
+			};
+
+			let captureStream = null;
+
+			try {
+				captureStream = await navigator.mediaDevices.getDisplayMedia(displayMediaOptions);
+				console.log('captureStream::', captureStream);
+			} catch (err) {
+				console.error("Error: " + err);
+			}
+			return captureStream;
+		}
+
+		function stopCapture(evt) {
+			let tracks = videoElem.srcObject.getTracks();
+
+			tracks.forEach(track => track.stop());
+			videoElem.srcObject = null;
+		}
 
 		// 啟動錄音錄影
 		function startRecorder() {
@@ -268,6 +299,7 @@
 			// document.getElementById("wait-view").style.display = 'none';
 			document.getElementById('join-button').style.display = "block";
 			document.getElementById("close-button").style.display = 'none';
+			document.getElementById("record-button").style.display = 'none';
 			if (_myParam.indexOf('@') > -1) { // Agent
 				document.getElementById("agentState").innerText = '客服人員：未上線';
 			} else if (_myParam.indexOf('$') > -1) { // Customer

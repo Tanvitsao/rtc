@@ -21,6 +21,7 @@ video {
     transform: scaleX(-1);
 }
 
+#record-button,
 #close-button {
     cursor: pointer;
     display: none;
