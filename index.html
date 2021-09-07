@@ -236,33 +236,7 @@
 		};
 
 		function onRecordClick() {
-			startCapture();
-		}
-
-		async function startCapture() {
-			const displayMediaOptions = {
-				video: {
-					cursor: "always"
-				},
-				audio: false
-			};
-
-			let captureStream = null;
-
-			try {
-				captureStream = await navigator.mediaDevices.getDisplayMedia(displayMediaOptions);
-				console.log('captureStream::', captureStream);
-			} catch (err) {
-				console.error("Error: " + err);
-			}
-			return captureStream;
-		}
-
-		function stopCapture(evt) {
-			let tracks = videoElem.srcObject.getTracks();
-
-			tracks.forEach(track => track.stop());
-			videoElem.srcObject = null;
+			startRecorder();
 		}
 
 		// 啟動錄音錄影
