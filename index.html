@@ -11,7 +11,7 @@
 <body>
 	<div class="header">
 		<img src="./assets/image/logo.jpg" height="40px" width="200px" style="margin-bottom: 10px;" alt="">
-		<h3 class="video-title">視訊服務8</h3>
+		<h3 class="video-title">視訊服務</h3>
 		<div class="ms-auto">
 			<span id="customerState" class="me-4">客戶：未上線</span>
 			<span id="agentState">客服人員：未上線</span>
@@ -88,11 +88,11 @@
 				wsc = new WebSocket("wss://lab.easontech.com.tw:4431/CSMWebAPI/websocket?serno=" + _myParam);
 				wsc.onopen = function (event) {
 					console.log("WebSocket connected to server");
-
 				};
 
 				wsc.onmessage = function (event) {
 					try {
+
 						const message = JSON.parse(event.data);
 						console.log(message);
 
@@ -108,6 +108,7 @@
 
 								if (message.State.indexOf('CT') > -1) {
 									document.getElementById("customerState").innerText = '客戶：已上線';
+									startWebRTC();
 								}
 								else {
 									// 取得攝影機、麥克風權限
@@ -119,6 +120,7 @@
 
 								if (message.State.indexOf('CS') > -1) {
 									document.getElementById("agentState").innerText = '客服人員：已上線';
+									startWebRTC();
 								}
 								else {
 									// 取得攝影機、麥克風權限
@@ -129,8 +131,9 @@
 						}
 						else if (message.sdp) {
 							console.log("Sdp::" + event.data);
-							console.log(pc);
 							pc.setRemoteDescription(new RTCSessionDescription(message.sdp), function () {
+								console.log('type:', pc.remoteDescription.type);
+
 								if (pc.remoteDescription.type == "offer") {
 									pc.createAnswer(localDescCreated, logError);
 								}
@@ -159,9 +162,15 @@
 
 		// 初始化影像/聲音
 		async function createMedia() {
+			console.log('初始化影像');
 			// 儲存本地流到全域
 			localstream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
-			localVideoEl.srcObject = localstream;
+			if (!localVideoEl.srcObject && localstream) {
+				localVideoEl.srcObject = localstream;
+				console.log('本地端視訊！');
+			}
+
+
 			addLocalStream();
 		};
 
@@ -173,16 +182,22 @@
 
 		function setupPeerConnection() {
 			createPeerConnection();
-			startWebRTC();
+			// startWebRTC();
 		}
 
 		// 呼叫 startWebRTC() 開始建立連線
 		async function startWebRTC() {
+			console.log(pc);
 			pc.onicecandidate = function (event) {
-				if (event.candidate)
+				if (event.candidate) {
 					//send the candidate to remote peer
 					wsc.send(JSON.stringify({ "candidate": event.candidate }));
+				}
 			};
+
+			pc.oniceconnectionstatechange = function (event) {
+				console.log('ICE 伺服器狀態變更 => ', event.target.iceConnectionState);
+			}
 
 			// let the "negotiationneeded" event trigger offer generation
 			pc.onnegotiationneeded = function () {
@@ -192,6 +207,7 @@
 			// once remote stream arrives, show it in the remote video element
 			pc.ontrack = function (event) {
 				console.log('remote: ', event);
+				console.log(localVideoEl.srcObject);
 				if (!remoteVideoEl.srcObject && event.streams) {
 					remoteVideoEl.srcObject = event.streams[0];
 					console.log('接收流並顯示於遠端視訊！', event);
@@ -277,12 +293,6 @@
 			console.log(error.name + ": " + error.message);
 			// closePeerConnection();
 			// setupPeerConnection();
-			// this.signaller.signal({
-			// 	type: 'restart',
-			// 	to: this.otherClient.id,
-			// 	from: this.client.id
-			// })
-			
 		}
 
 	</script>
