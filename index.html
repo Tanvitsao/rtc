@@ -27,6 +27,7 @@
 		<!-- <div id="wait-view" class="video-zone center"></div> -->
 		<!-- 視訊畫面 -->
 		<div id="videos" class="video-zone active">
+			<canvas id="canvas"></canvas>
 			<video id="remoteVideo" autoplay playsinline class="active"></video>
 			<video id="localVideo" autoplay playsinline class="active"></video>
 		</div>
@@ -52,6 +53,7 @@
 		let _myParam = location.search.split('room=')[1];
 		/* 本地流 */
 		let localstream;
+		let remotestream;
 		/* RTCPeerConnection */
 		let pc;
 		/* iceServer */
@@ -65,6 +67,41 @@
 		const remoteVideoEl = document.getElementById('remoteVideo');
 		/* 錄音錄影 */
 		let recorder;
+
+
+
+
+		var canvas = document.getElementById('canvas');
+		var ctx = canvas.getContext('2d');
+
+		localVideoEl.addEventListener('play', function () {
+			var $this = this; //cache
+			(function loop() {
+				const localWidth = localVideoEl.clientWidth;
+				const localHeight = localVideoEl.clientHeight;
+				if (!$this.paused && !$this.ended) {
+					ctx.drawImage($this, 100, 100, localWidth, localHeight);
+					setTimeout(loop, 1000 / 30); // drawing at 30fps
+				}
+			})();
+		}, 0);
+
+		remoteVideoEl.addEventListener('play', function () {
+			var $this = this; //cache
+			(function loop() {
+				const remoteWidth = remoteVideoEl.clientWidth;
+				const remoteHeight = remoteVideoEl.clientHeight;
+				if (!$this.paused && !$this.ended) {
+					ctx.drawImage($this, 0, 0, remoteWidth, remoteHeight);
+					setTimeout(loop, 1000 / 30); // drawing at 30fps
+				}
+			})();
+		}, 0);
+
+
+
+
+
 
 		// window 初始化
 		window.onload = function () {
@@ -205,6 +242,7 @@
 				console.log('remote: ', event);
 				if (!remoteVideoEl.srcObject && event.streams) {
 					remoteVideoEl.srcObject = event.streams[0];
+					remotestream = event.streams[0];
 					console.log('接收流並顯示於遠端視訊！', event);
 				}
 			};
@@ -236,16 +274,23 @@
 		};
 
 		function onRecordClick() {
-			console.log('click record');
 			startRecorder();
 		}
 
 		// 啟動錄音錄影
 		function startRecorder() {
-			console.log('245::', localstream);
+			// console.log('245::', localstream);
 
+			// const tracks = [...localstream.getTracks(), ...remotestream.getTracks()];
+			// console.log(remotestream, tracks);
+
+			const canvasStream = canvas.captureStream(25);
+
+
+
+			const stream = new MediaStream(canvasStream);
 			/* 建立 mediaRecorder 物件 */
-			recorder = new MediaRecorder(localstream);
+			recorder = new MediaRecorder(stream);
 			recorder.start();
 			// 訂閱 MediaRecorder，在結束錄影後回傳檔案
 			recorder.ondataavailable = function (event) {
