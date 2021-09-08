@@ -255,10 +255,6 @@
 				document.body.appendChild(downloadLink);
 				downloadLink.click();
 				document.body.removeChild(downloadLink);
-
-
-
-				closePeerConnection();
 			}
 		}
 
@@ -270,6 +266,7 @@
 		function onStopClick() {
 			// stopRecorder();
 			closeWebSocketConnection();
+			closePeerConnection();
 
 			document.getElementById("videos").style.display = 'none';
 			document.getElementById("enter-view").style.display = 'flex';
