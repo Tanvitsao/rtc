@@ -27,7 +27,6 @@
 		<!-- <div id="wait-view" class="video-zone center"></div> -->
 		<!-- 視訊畫面 -->
 		<div id="videos" class="video-zone active">
-			<canvas id="canvas"></canvas>
 			<video id="remoteVideo" autoplay playsinline class="active"></video>
 			<video id="localVideo" autoplay playsinline class="active"></video>
 		</div>
@@ -67,41 +66,6 @@
 		const remoteVideoEl = document.getElementById('remoteVideo');
 		/* 錄音錄影 */
 		let recorder;
-
-
-
-
-		var canvas = document.getElementById('canvas');
-		var ctx = canvas.getContext('2d');
-
-		localVideoEl.addEventListener('play', function () {
-			var $this = this; //cache
-			(function loop() {
-				const localWidth = localVideoEl.clientWidth;
-				const localHeight = localVideoEl.clientHeight;
-				if (!$this.paused && !$this.ended) {
-					ctx.drawImage($this, 100, 100, localWidth, localHeight);
-					setTimeout(loop, 1000 / 30); // drawing at 30fps
-				}
-			})();
-		}, 0);
-
-		remoteVideoEl.addEventListener('play', function () {
-			var $this = this; //cache
-			(function loop() {
-				const remoteWidth = remoteVideoEl.clientWidth;
-				const remoteHeight = remoteVideoEl.clientHeight;
-				if (!$this.paused && !$this.ended) {
-					ctx.drawImage($this, 0, 0, remoteWidth, remoteHeight);
-					setTimeout(loop, 1000 / 30); // drawing at 30fps
-				}
-			})();
-		}, 0);
-
-
-
-
-
 
 		// window 初始化
 		window.onload = function () {
@@ -279,16 +243,12 @@
 
 		// 啟動錄音錄影
 		function startRecorder() {
-			// console.log('245::', localstream);
+			console.log('245::', localstream);
 
-			// const tracks = [...localstream.getTracks(), ...remotestream.getTracks()];
-			// console.log(remotestream, tracks);
+			const tracks = [...localstream.getTracks(), ...remotestream.getTracks()];
+			console.log(remotestream, tracks);
 
-			const canvasStream = canvas.captureStream(25);
-
-
-
-			const stream = new MediaStream(canvasStream);
+			const stream = new MediaStream(tracks);
 			/* 建立 mediaRecorder 物件 */
 			recorder = new MediaRecorder(stream);
 			recorder.start();
