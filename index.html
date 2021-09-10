@@ -27,6 +27,7 @@
 		<!-- <div id="wait-view" class="video-zone center"></div> -->
 		<!-- 視訊畫面 -->
 		<div id="videos" class="video-zone active">
+			<canvas id="canvas"></canvas>
 			<video id="remoteVideo" autoplay playsinline class="active"></video>
 			<video id="localVideo" autoplay playsinline class="active"></video>
 		</div>
@@ -64,12 +65,35 @@
 		/* 本地/遠端視訊 element */
 		const localVideoEl = document.getElementById('localVideo');
 		const remoteVideoEl = document.getElementById('remoteVideo');
+		const canvasEl = document.getElementById('canvas');
 		/* 錄音錄影 */
 		let recorder;
 
 		// window 初始化
 		window.onload = function () {
 			getIdentity();
+
+
+
+			const canvas = document.getElementById('canvas');
+			const ctx = canvas.getContext('2d');
+			const video = document.getElementById('localVideo');
+
+			canvas.width = '400'
+			canvas.height = '200'
+
+			video.addEventListener('play', function () {
+				const $this = this; //cache
+				(function loop() {
+					if (!$this.paused && !$this.ended) {
+						const localWidth = localVideoEl.clientWidth;
+						const localHeight = localVideoEl.clientHeight;
+						console.log(localWidth, localHeight);
+						ctx.drawImage(video, 100, 100, localWidth, localHeight);
+						setTimeout(loop, 1000 / 30); // drawing at 30fps
+					}
+				})();
+			}, 0);
 		}
 
 		// 判斷身分為客服人員或客戶
@@ -86,8 +110,41 @@
 		 * 因一連線就會上線，所以在點選開始之後再建立連線
 		 */
 		function createWebSocketConnection() {
+			document.getElementById("enter-view").style.display = 'none';
+			document.getElementById('join-button').style.display = "none";
+			document.getElementById("videos").style.display = 'block';
+			document.getElementById("close-button").style.display = 'block';
+			if (_myParam.indexOf('@') > -1) {	//Agent
+				// document.getElementById("wait-view").innerText = '等待客戶上線中...';
+
+				// if (message.State.indexOf('CT') > -1) {
+				document.getElementById("customerState").innerText = '客戶：已上線';
+				startWebRTC();
+				// }
+				// else {
+				// 取得攝影機、麥克風權限
+				createMedia();
+				document.getElementById("agentState").innerText = '客服人員：已上線';
+				document.getElementById("record-button").style.display = 'block';
+				// }
+			} else if (message.Serno.indexOf('$') > -1) { //Customer
+				// document.getElementById("wait-view").innerText = '等待客服人員上線中...';
+
+				if (message.State.indexOf('CS') > -1) {
+					document.getElementById("agentState").innerText = '客服人員：已上線';
+					startWebRTC();
+				}
+				else {
+					// 取得攝影機、麥克風權限
+					createMedia();
+					document.getElementById("customerState").innerText = '客戶：已上線';
+				}
+			}
+
+
 			if ("WebSocket" in window) {
 				wsc = new WebSocket("wss://lab.easontech.com.tw:4431/CSMWebAPI/websocket?serno=" + _myParam);
+				// wsc = new WebSocket("https://lab.easontech.com.tw:8443/rtc/" + _myParam);
 				wsc.onopen = function (event) {
 					console.log("WebSocket connected to server");
 				};
@@ -243,12 +300,22 @@
 
 		// 啟動錄音錄影
 		function startRecorder() {
-			console.log('245::', localstream);
+			const tracks = [...localstream.getTracks(), ...localstream.getTracks()];
 
-			const tracks = [...localstream.getTracks(), ...remotestream.getTracks()];
-			console.log(remotestream, tracks);
 
-			const stream = new MediaStream(tracks);
+			// const audioContext = new AudioContext();
+			// const localAudioIn = audioContext.createMediaStreamSource(localstream);
+			// const remoteAudioIn = audioContext.createMediaStreamSource(localstream); // TODO: change to remote
+			// const dest = audioContext.createMediaStreamDestination();
+
+			// localAudioIn.connect(dest);
+			// remoteAudioIn.connect(dest);
+
+			const videoStream = canvasEl.captureStream(25);
+			// const audioTrack = audioContext.createMediaStreamSource(dest.stream);
+
+			const stream = new MediaStream([...videoStream.getTracks(), ...tracks])
+
 			/* 建立 mediaRecorder 物件 */
 			recorder = new MediaRecorder(stream);
 			recorder.start();
@@ -264,6 +331,30 @@
 				downloadLink.click();
 				document.body.removeChild(downloadLink);
 			}
+
+
+
+
+
+
+			// const tracks = [...localstream.getTracks(), ...remotestream.getTracks()];
+
+			// const stream = new MediaStream(tracks);
+			/* 建立 mediaRecorder 物件 */
+			// recorder = new MediaRecorder(stream);
+			// recorder.start();
+			// // 訂閱 MediaRecorder，在結束錄影後回傳檔案
+			// recorder.ondataavailable = function (event) {
+			// 	console.log(event);
+			// 	const recordVideo = new Blob([event.data], { 'type': 'video' });
+			// 	const url = URL.createObjectURL(recordVideo);
+			// 	const downloadLink = document.createElement('a');
+			// 	downloadLink.href = url; // url
+			// 	downloadLink.download = 'video.mp4'; // 檔名
+			// 	document.body.appendChild(downloadLink);
+			// 	downloadLink.click();
+			// 	document.body.removeChild(downloadLink);
+			// }
 		}
 
 		// 結束錄音錄影並下載檔案
