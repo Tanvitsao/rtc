@@ -120,10 +120,10 @@ video {
     transition: opacity 1s;
 }
 
-#localVideo.active {
+/* #localVideo.active {
     opacity: 1;
     z-index: 2;
-}
+} */
 #localVideo {
     border: 1px solid gray;
     bottom: 3%;

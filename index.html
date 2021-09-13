@@ -92,10 +92,10 @@
 			document.getElementById('join-button').style.display = "none";
 			document.getElementById("videos").style.display = 'block';
 			document.getElementById("close-button").style.display = 'block';
+			initCanvas();
 
 			if ("WebSocket" in window) {
 				// wsc = new WebSocket("wss://lab.easontech.com.tw:4431/CSMWebAPI/websocket?serno=" + _myParam);
-				// wsc = new WebSocket("wss://lab.easontech.com.tw:8443/rtc/rtc/" + _myParam);
 				wsc = new SockJS("https://lab.easontech.com.tw:8443/rtc/rtc/" + _myParam);
 				wsc.onopen = function (event) {
 					console.log("WebSocket connected to server");
@@ -168,25 +168,50 @@
 			setupPeerConnection();
 		}
 
-		// 初始化 canvas
+		// 初始化 canvas 長寬
 		function initCanvas() {
 			const videosElWidth = document.getElementById('videos').clientWidth;
 			const videosElHeight = document.getElementById('videos').clientHeight;
-			const ctx = canvasEl.getContext('2d');
-			const video = document.getElementById('localVideo');
-
-			console.log(videosElWidth,videosElHeight);
 			canvasEl.width = videosElWidth;
 			canvasEl.height = videosElHeight;
+		}
 
-			video.addEventListener('play', function () {
+		// 初始化本地端 canvas
+		function initLocalCanvas() {
+			const videosElWidth = document.getElementById('videos').clientWidth;
+			const videosElHeight = document.getElementById('videos').clientHeight;
+
+			const ctx = canvasEl.getContext('2d');
+			localVideoEl.addEventListener('play', function () {
 				const $this = this; //cache
 				(function loop() {
 					if (!$this.paused && !$this.ended) {
 						const localWidth = localVideoEl.clientWidth;
 						const localHeight = localVideoEl.clientHeight;
+						const x = videosElWidth - localWidth - 10;
+						const y = videosElHeight - localHeight - 10;
 						console.log(localWidth, localHeight);
-						ctx.drawImage(video, 100, 100, localWidth, localHeight);
+						ctx.drawImage(localVideoEl, x, y, localWidth, localHeight);
+						setTimeout(loop, 1000 / 30); // drawing at 30fps
+					}
+				})();
+			}, 0);
+		}
+
+		// 初始化遠端 canvas
+		function initRemoteCanvas() {
+			const ctx = canvasEl.getContext('2d');
+			remoteVideoEl.addEventListener('play', function () {
+				const $this = this; //cache
+				(function loop() {
+					if (!$this.paused && !$this.ended) {
+						// const localWidth = localVideoEl.clientWidth;
+						// const localHeight = localVideoEl.clientHeight;
+
+						const remoteWidth = remoteVideoEl.clientWidth;
+						const remoteHeight = remoteVideoEl.clientHeight;
+						console.log(remoteWidth, remoteHeight);
+						ctx.drawImage(remoteVideoEl, 0, 0, remoteWidth, remoteHeight);
 						setTimeout(loop, 1000 / 30); // drawing at 30fps
 					}
 				})();
@@ -200,7 +225,7 @@
 			if (!localVideoEl.srcObject && localstream) {
 				localVideoEl.srcObject = localstream;
 				console.log('本地端視訊！');
-				initCanvas();
+				initLocalCanvas();
 			}
 
 
@@ -244,6 +269,7 @@
 					remoteVideoEl.srcObject = event.streams[0];
 					remotestream = event.streams[0];
 					console.log('接收流並顯示於遠端視訊！', event);
+					initRemoteCanvas();
 				}
 			};
 		}
@@ -280,7 +306,8 @@
 
 		// 啟動錄音錄影
 		function startRecorder() {
-			const tracks = [...localstream.getTracks(), ...localstream.getTracks()]; // TODO: change to remote
+			const tracks = [...localstream.getTracks(), ...remotestream.getTracks()];
+			console.log(canvasEl);
 			const videoTracks = canvasEl.captureStream(25).getTracks();
 			const stream = new MediaStream([...videoTracks, ...tracks]);
 
