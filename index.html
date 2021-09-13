@@ -65,7 +65,8 @@
 		const localVideoEl = document.getElementById('localVideo');
 		const remoteVideoEl = document.getElementById('remoteVideo');
 		/* 錄音錄影 */
-		let recorder;
+		let localRecorder;
+		let remoteRecorder;
 
 		// window 初始化
 		window.onload = function () {
@@ -312,7 +313,8 @@
 
 		// 結束錄音錄影並下載檔案
 		function stopRecorder() {
-			recorder.stop();
+			localRecorder.stop();
+			remoteRecorder.stop();
 		}
 
 		function onStopClick() {
