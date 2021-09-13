@@ -27,7 +27,6 @@
 		<!-- <div id="wait-view" class="video-zone center"></div> -->
 		<!-- 視訊畫面 -->
 		<div id="videos" class="video-zone active">
-			<canvas id="canvas"></canvas>
 			<video id="remoteVideo" autoplay playsinline class="active"></video>
 			<video id="localVideo" autoplay playsinline class="active"></video>
 		</div>
@@ -65,7 +64,6 @@
 		/* 本地/遠端視訊 element */
 		const localVideoEl = document.getElementById('localVideo');
 		const remoteVideoEl = document.getElementById('remoteVideo');
-		const canvasEl = document.getElementById('canvas');
 		/* 錄音錄影 */
 		let recorder;
 
@@ -168,31 +166,6 @@
 			setupPeerConnection();
 		}
 
-		// 初始化 canvas
-		function initCanvas() {
-			const videosElWidth = document.getElementById('videos').clientWidth;
-			const videosElHeight = document.getElementById('videos').clientHeight;
-			const ctx = canvasEl.getContext('2d');
-			const video = document.getElementById('localVideo');
-
-			console.log(videosElWidth,videosElHeight);
-			canvasEl.width = videosElWidth;
-			canvasEl.height = videosElHeight;
-
-			video.addEventListener('play', function () {
-				const $this = this; //cache
-				(function loop() {
-					if (!$this.paused && !$this.ended) {
-						const localWidth = localVideoEl.clientWidth;
-						const localHeight = localVideoEl.clientHeight;
-						console.log(localWidth, localHeight);
-						ctx.drawImage(video, 100, 100, localWidth, localHeight);
-						setTimeout(loop, 1000 / 30); // drawing at 30fps
-					}
-				})();
-			}, 0);
-		}
-
 		// 初始化影像/聲音
 		async function createMedia() {
 			// 儲存本地流到全域
@@ -200,7 +173,6 @@
 			if (!localVideoEl.srcObject && localstream) {
 				localVideoEl.srcObject = localstream;
 				console.log('本地端視訊！');
-				initCanvas();
 			}
 
 
@@ -280,27 +252,40 @@
 
 		// 啟動錄音錄影
 		function startRecorder() {
-			const tracks = [...localstream.getTracks(), ...localstream.getTracks()]; // TODO: change to remote
-			const videoTracks = canvasEl.captureStream(25).getTracks();
-			const stream = new MediaStream([...videoTracks, ...tracks]);
+			// const tracks = [...localstream.getTracks(), ...remotestream.getTracks()];
 
-			/* 建立 mediaRecorder 物件 */
-			recorder = new MediaRecorder(stream);
-			recorder.start();
+			/* 建立本地端 mediaRecorder 物件 */
+			localRecorder = new MediaRecorder(new MediaStream(localstream));
+			localRecorder.start();
 			// 訂閱 MediaRecorder，在結束錄影後回傳檔案
-			recorder.ondataavailable = function (event) {
+			localRecorder.ondataavailable = function (event) {
 				console.log(event);
 				const recordVideo = new Blob([event.data], { 'type': 'video' });
 				const url = URL.createObjectURL(recordVideo);
 				const downloadLink = document.createElement('a');
 				downloadLink.href = url; // url
-				downloadLink.download = 'video.mp4'; // 檔名
+				downloadLink.download = 'local_video.mp4'; // 檔名
 				document.body.appendChild(downloadLink);
 				downloadLink.click();
 				document.body.removeChild(downloadLink);
 			}
 
 
+			/* 建立遠端 mediaRecorder 物件 */
+			remoteRecorder = new MediaRecorder(new MediaStream(remotestream));
+			remoteRecorder.start();
+			// 訂閱 MediaRecorder，在結束錄影後回傳檔案
+			remoteRecorder.ondataavailable = function (event) {
+				console.log(event);
+				const recordVideo = new Blob([event.data], { 'type': 'video' });
+				const url = URL.createObjectURL(recordVideo);
+				const downloadLink = document.createElement('a');
+				downloadLink.href = url; // url
+				downloadLink.download = 'remote_video.mp4'; // 檔名
+				document.body.appendChild(downloadLink);
+				downloadLink.click();
+				document.body.removeChild(downloadLink);
+			}
 
 
 
