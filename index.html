@@ -43,7 +43,7 @@
 
 
 
-
+	<script src="./js/sockjs.min.js"></script>
 	<script src="./plugin/bootstrap-5.1.0/js/bootstrap.min.js"></script>
 	<script src="./js/adapter.js"></script>
 	<script>
@@ -72,28 +72,6 @@
 		// window 初始化
 		window.onload = function () {
 			getIdentity();
-
-
-
-			const canvas = document.getElementById('canvas');
-			const ctx = canvas.getContext('2d');
-			const video = document.getElementById('localVideo');
-
-			canvas.width = '400'
-			canvas.height = '200'
-
-			video.addEventListener('play', function () {
-				const $this = this; //cache
-				(function loop() {
-					if (!$this.paused && !$this.ended) {
-						const localWidth = localVideoEl.clientWidth;
-						const localHeight = localVideoEl.clientHeight;
-						console.log(localWidth, localHeight);
-						ctx.drawImage(video, 100, 100, localWidth, localHeight);
-						setTimeout(loop, 1000 / 30); // drawing at 30fps
-					}
-				})();
-			}, 0);
 		}
 
 		// 判斷身分為客服人員或客戶
@@ -114,37 +92,11 @@
 			document.getElementById('join-button').style.display = "none";
 			document.getElementById("videos").style.display = 'block';
 			document.getElementById("close-button").style.display = 'block';
-			if (_myParam.indexOf('@') > -1) {	//Agent
-				// document.getElementById("wait-view").innerText = '等待客戶上線中...';
-
-				// if (message.State.indexOf('CT') > -1) {
-				document.getElementById("customerState").innerText = '客戶：已上線';
-				startWebRTC();
-				// }
-				// else {
-				// 取得攝影機、麥克風權限
-				createMedia();
-				document.getElementById("agentState").innerText = '客服人員：已上線';
-				document.getElementById("record-button").style.display = 'block';
-				// }
-			} else if (message.Serno.indexOf('$') > -1) { //Customer
-				// document.getElementById("wait-view").innerText = '等待客服人員上線中...';
-
-				if (message.State.indexOf('CS') > -1) {
-					document.getElementById("agentState").innerText = '客服人員：已上線';
-					startWebRTC();
-				}
-				else {
-					// 取得攝影機、麥克風權限
-					createMedia();
-					document.getElementById("customerState").innerText = '客戶：已上線';
-				}
-			}
-
 
 			if ("WebSocket" in window) {
-				wsc = new WebSocket("wss://lab.easontech.com.tw:4431/CSMWebAPI/websocket?serno=" + _myParam);
-				// wsc = new WebSocket("https://lab.easontech.com.tw:8443/rtc/" + _myParam);
+				// wsc = new WebSocket("wss://lab.easontech.com.tw:4431/CSMWebAPI/websocket?serno=" + _myParam);
+				// wsc = new WebSocket("wss://lab.easontech.com.tw:8443/rtc/rtc/" + _myParam);
+				wsc = new SockJS("https://lab.easontech.com.tw:8443/rtc/rtc/" + _myParam);
 				wsc.onopen = function (event) {
 					console.log("WebSocket connected to server");
 				};
@@ -216,6 +168,31 @@
 			setupPeerConnection();
 		}
 
+		// 初始化 canvas
+		function initCanvas() {
+			const videosElWidth = document.getElementById('videos').clientWidth;
+			const videosElHeight = document.getElementById('videos').clientHeight;
+			const ctx = canvasEl.getContext('2d');
+			const video = document.getElementById('localVideo');
+
+			console.log(videosElWidth,videosElHeight);
+			canvasEl.width = videosElWidth;
+			canvasEl.height = videosElHeight;
+
+			video.addEventListener('play', function () {
+				const $this = this; //cache
+				(function loop() {
+					if (!$this.paused && !$this.ended) {
+						const localWidth = localVideoEl.clientWidth;
+						const localHeight = localVideoEl.clientHeight;
+						console.log(localWidth, localHeight);
+						ctx.drawImage(video, 100, 100, localWidth, localHeight);
+						setTimeout(loop, 1000 / 30); // drawing at 30fps
+					}
+				})();
+			}, 0);
+		}
+
 		// 初始化影像/聲音
 		async function createMedia() {
 			// 儲存本地流到全域
@@ -223,6 +200,7 @@
 			if (!localVideoEl.srcObject && localstream) {
 				localVideoEl.srcObject = localstream;
 				console.log('本地端視訊！');
+				initCanvas();
 			}
 
 
@@ -242,6 +220,7 @@
 
 		// 呼叫 startWebRTC() 開始建立連線
 		async function startWebRTC() {
+			console.log(pc);
 			pc.onicecandidate = function (event) {
 				if (event.candidate) {
 					//send the candidate to remote peer
@@ -276,6 +255,7 @@
 				pc = null;
 			}
 			pc = new RTCPeerConnection(iceServer);
+			console.log(pc);
 		};
 
 		// 關閉 P2P 連接
@@ -300,21 +280,9 @@
 
 		// 啟動錄音錄影
 		function startRecorder() {
-			const tracks = [...localstream.getTracks(), ...localstream.getTracks()];
-
-
-			// const audioContext = new AudioContext();
-			// const localAudioIn = audioContext.createMediaStreamSource(localstream);
-			// const remoteAudioIn = audioContext.createMediaStreamSource(localstream); // TODO: change to remote
-			// const dest = audioContext.createMediaStreamDestination();
-
-			// localAudioIn.connect(dest);
-			// remoteAudioIn.connect(dest);
-
-			const videoStream = canvasEl.captureStream(25);
-			// const audioTrack = audioContext.createMediaStreamSource(dest.stream);
-
-			const stream = new MediaStream([...videoStream.getTracks(), ...tracks])
+			const tracks = [...localstream.getTracks(), ...localstream.getTracks()]; // TODO: change to remote
+			const videoTracks = canvasEl.captureStream(25).getTracks();
+			const stream = new MediaStream([...videoTracks, ...tracks]);
 
 			/* 建立 mediaRecorder 物件 */
 			recorder = new MediaRecorder(stream);
