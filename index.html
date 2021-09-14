@@ -20,16 +20,18 @@
 	</div>
 	<div class="gradient-bar"></div>
 	<div class="content-container center">
-		<!-- 尚未加入的畫面 -->
-		<div id="enter-view" class="video-zone center">
-			<div id="circle" class="center"></div>
-		</div>
-		<!-- 等待對方的畫面 -->
-		<!-- <div id="wait-view" class="video-zone center"></div> -->
-		<!-- 視訊畫面 -->
-		<div id="videos" class="video-zone active">
-			<video id="remoteVideo" autoplay playsinline class="active"></video>
-			<video id="localVideo" autoplay playsinline class="active"></video>
+		<div class="inner-container">
+			<!-- 尚未加入的畫面 -->
+			<div id="enter-view" class="video-zone center">
+				<div id="circle" class="center"></div>
+			</div>
+			<!-- 等待對方的畫面 -->
+			<!-- <div id="wait-view" class="video-zone center"></div> -->
+			<!-- 視訊畫面 -->
+			<div id="videos" class="video-zone active">
+				<video id="remoteVideo" autoplay playsinline class="active"></video>
+				<video id="localVideo" autoplay playsinline class="active"></video>
+			</div>
 		</div>
 		<div class="btn-group center">
 			<button id="join-button" onclick="onStartClick()">開始</button>
