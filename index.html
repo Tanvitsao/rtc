@@ -237,12 +237,15 @@
 		// 關閉 P2P 連接
 		function closePeerConnection() {
 			// 暫停video播放，並將儲存在src裡的 MediaStreamTracks 依序停止
+			console.log(localVideoEl.srcObject);
 			if (localVideoEl.srcObject) {
 				localVideoEl.pause();
 				localVideoEl.srcObject.getTracks().forEach((track) => {
 					track.stop();
 				});
 			}
+			console.log(localVideoEl.srcObject);
+
 			if (pc) {
 				pc.close();
 				pc = null;
