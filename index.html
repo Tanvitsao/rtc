@@ -21,6 +21,12 @@
 	<div class="gradient-bar"></div>
 	<div class="content-container center">
 		<div class="inner-container">
+			<!-- 錄影中提示 -->
+			<div id="recording-alert" class="alert alert-danger" role="alert">
+				<img src="./assets/image/record.svg" width="18" alt="">
+				Recording online meeting...
+			</div>
+
 			<!-- 尚未加入的畫面 -->
 			<div id="enter-view" class="video-zone center">
 				<div id="circle" class="center"></div>
@@ -33,12 +39,16 @@
 				<video id="localVideo" autoplay playsinline class="active"></video>
 			</div>
 		</div>
-		<div class="btn-group center">
-			<button id="join-button" onclick="onStartClick()">開始</button>
+		<div class="btn-group-position center">
+			<button type="button" id="join-button" class="btn btn-primary" onclick="onStartClick()">開始</button>
+			<button type="button" id="record-button" class="btn btn-primary me-2 disabled"
+				onclick="onRecordClick()">錄製</button>
+			<button type="button" id="close-button" class="btn btn-danger" onclick="onStopClick()">結束</button>
+			<!-- <button id="join-button" onclick="onStartClick()">開始</button>
 			<button id="record-button" onclick="onRecordClick()">錄製</button>
 			<div id="close-button" onclick="onStopClick()">
 				<img src="./assets/image/close.svg" width="50" alt="">
-			</div>
+			</div> -->
 		</div>
 	</div>
 
@@ -70,6 +80,8 @@
 		/* 錄音錄影 */
 		let localRecorder;
 		let remoteRecorder;
+
+		const recordingAlert = document.getElementById('recording-alert');
 
 		// window 初始化
 		window.onload = function () {
@@ -107,6 +119,7 @@
 					try {
 
 						const message = JSON.parse(event.data);
+						console.log(message);
 						if (message.State && message.State.indexOf('Online') > -1) {
 							console.log("State::" + event.data);
 							document.getElementById("enter-view").style.display = 'none';
@@ -220,6 +233,7 @@
 				if (!remoteVideoEl.srcObject && event.streams) {
 					remoteVideoEl.srcObject = event.streams[0];
 					remotestream = event.streams[0];
+					document.getElementById("record-button").classList.remove('disabled');
 					console.log('接收流並顯示於遠端視訊！', event);
 				}
 			};
@@ -238,14 +252,12 @@
 		// 關閉 P2P 連接
 		function closePeerConnection() {
 			// 暫停video播放，並將儲存在src裡的 MediaStreamTracks 依序停止
-			console.log(localVideoEl.srcObject);
 			if (localVideoEl.srcObject) {
 				localVideoEl.pause();
 				localVideoEl.srcObject.getTracks().forEach((track) => {
 					track.stop();
 				});
 			}
-			console.log(localVideoEl.srcObject);
 
 			if (pc) {
 				pc.close();
@@ -260,6 +272,9 @@
 
 		// 啟動錄音錄影
 		function startRecorder() {
+			recordingAlert.style.display = 'flex';
+			document.getElementById("record-button").style.display = 'none';
+
 			// const tracks = [...localstream.getTracks(), ...remotestream.getTracks()];
 
 			/* 建立本地端 mediaRecorder 物件 */
@@ -320,6 +335,8 @@
 
 		// 結束錄音錄影並下載檔案
 		function stopRecorder() {
+			recordingAlert.style.display = 'none';
+
 			if (localRecorder) {
 				localRecorder.stop();
 			}
@@ -329,7 +346,9 @@
 		}
 
 		function onStopClick() {
-			stopRecorder();
+			if (_myParam.indexOf('@') > -1) {
+				stopRecorder();
+			}
 			closeWebSocketConnection();
 			closePeerConnection();
 
