@@ -316,8 +316,12 @@
 
 		// 結束錄音錄影並下載檔案
 		function stopRecorder() {
-			localRecorder.stop();
-			remoteRecorder.stop();
+			if (localRecorder) {
+				localRecorder.stop();
+			}
+			if (remoteRecorder) {
+				remoteRecorder.stop();
+			}
 		}
 
 		function onStopClick() {
