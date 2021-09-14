@@ -60,6 +60,7 @@ video {
     height: -moz-calc(100vh - 70px - 5px);
     background: #f4f4f4;
     padding: 20px 20px 70px;
+    position: relative;
 }
 
 .inner-container {
