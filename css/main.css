@@ -39,6 +39,7 @@ video {
     font-weight: 500;
     margin: 0 0 0 24px;
 }
+
 /* Nav 下一條藍色的東西 */
 .gradient-bar {
     height: 5px;
@@ -133,4 +134,14 @@ video {
     opacity: 0;
     position: absolute;
     transition: opacity 1s;
+}
+
+@media (max-width: 768px) {
+    .header .video-title {
+        display: none;
+    }
+
+    .status span {
+        display: block;
+    }
 }
