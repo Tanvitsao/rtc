@@ -689,7 +689,7 @@
         // progressBar
         async function initializeVideo() {
             while (remoteVideo.duration === Infinity) {
-                await new Promise(r => setTimeout(r, 300));
+                await new Promise(r => setTimeout(r, 1000));
                 remoteVideo.currentTime = 10000000 * Math.random();
             }
 
