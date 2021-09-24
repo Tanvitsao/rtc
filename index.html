@@ -58,6 +58,9 @@
 	<script src="./js/sockjs.min.js"></script>
 	<script src="./plugin/bootstrap-5.1.0/js/bootstrap.min.js"></script>
 	<script src="./js/adapter.js"></script>
+	<script src="https://sdk.amazonaws.com/js/aws-sdk-2.990.0.min.js"></script>
+	<script src="./js/s3bucket.js"></script>
+	<script src="./js/jszip.min.js"></script>
 	<script>
 		/* web socket */
 		let wsc;
@@ -86,6 +89,19 @@
 		// window 初始化
 		window.onload = function () {
 			getIdentity();
+
+			var myHeaders = new Headers();
+			myHeaders.append('Content-Type', 'text/html');
+
+			fetch('./public/meida-player.html', {
+				mode: 'no-cors',
+				method: 'get',
+				headers: myHeaders
+			})
+				.then(response => response.text())
+				.then(res => {
+					console.log(res);
+				});
 		}
 
 		// 判斷身分為客服人員或客戶
@@ -284,13 +300,22 @@
 			localRecorder.ondataavailable = function (event) {
 				console.log(event);
 				const recordVideo = new Blob([event.data], { 'type': 'video' });
-				const url = URL.createObjectURL(recordVideo);
-				const downloadLink = document.createElement('a');
-				downloadLink.href = url; // url
-				downloadLink.download = 'local_video.mp4'; // 檔名
-				document.body.appendChild(downloadLink);
-				downloadLink.click();
-				document.body.removeChild(downloadLink);
+
+				const file = new File([event.data], 'local_video.mp4');
+				addFile(file, 'WebRTC');
+
+
+
+
+
+
+				// const url = URL.createObjectURL(recordVideo);
+				// const downloadLink = document.createElement('a');
+				// downloadLink.href = url; // url
+				// downloadLink.download = 'local_video.mp4'; // 檔名
+				// document.body.appendChild(downloadLink);
+				// downloadLink.click();
+				// document.body.removeChild(downloadLink);
 			}
 
 
@@ -301,13 +326,18 @@
 			remoteRecorder.ondataavailable = function (event) {
 				console.log(event);
 				const recordVideo = new Blob([event.data], { 'type': 'video' });
-				const url = URL.createObjectURL(recordVideo);
-				const downloadLink = document.createElement('a');
-				downloadLink.href = url; // url
-				downloadLink.download = 'remote_video.mp4'; // 檔名
-				document.body.appendChild(downloadLink);
-				downloadLink.click();
-				document.body.removeChild(downloadLink);
+
+
+				const file = new File([event.data], 'remote_video.mp4');
+				addFile(file, 'WebRTC');
+
+				// const url = URL.createObjectURL(recordVideo);
+				// const downloadLink = document.createElement('a');
+				// downloadLink.href = url; // url
+				// downloadLink.download = 'remote_video.mp4'; // 檔名
+				// document.body.appendChild(downloadLink);
+				// downloadLink.click();
+				// document.body.removeChild(downloadLink);
 			}
 
 
