@@ -125,6 +125,7 @@
         .content-container {
             height: calc(100vh - 70px - 5px);
             background: #f4f4f4;
+            position: relative;
         }
 
         .content-container .video-zone {
@@ -132,6 +133,7 @@
             background: #fff;
             height: 80%;
             position: relative;
+            overflow: hidden;
         }
 
         #videos.active {
@@ -456,6 +458,11 @@
             stroke: #fff;
             cursor: pointer;
         }
+
+        .btn-controls {
+            position: absolute;
+            bottom: 3%;
+        }
     </style>
 </head>
 
@@ -475,9 +482,9 @@
         <h3 class="video-title">視訊服務-播放器</h3>
     </div>
     <div class="gradient-bar"></div>
-    <div class="content-container center">
+    <div id="content" class="content-container center hidden">
         <!-- 視訊畫面 -->
-        <div id="player-videos" class="video-zone active hidden">
+        <div id="player-videos" class="video-zone active">
             <video id="remoteVideo" autoplay playsinline class="active">
                 <source src="./remote_video.mp4" type="video/mp4">
             </video>
@@ -559,6 +566,14 @@
             </div> -->
         </div>
 
+        <!-- 旋轉按鈕 -->
+        <div class="btn-controls">
+            遠端螢幕旋轉：
+            <a href="javascript:void(0)" onclick="onRotateRemoteClick()">
+                <img src="./image/rotating.svg" width="25" alt="">
+            </a>
+        </div>
+
     </div>
 
     <svg style="display: none">
@@ -612,7 +627,7 @@
     <script>
         // Select elements here
         const loadingMask = document.getElementById('loading-mask');
-        const playerVideos = document.getElementById('player-videos');
+        const content = document.getElementById('content');
 
         const localVideo = document.getElementById('localVideo');
         const remoteVideo = document.getElementById('remoteVideo');
@@ -705,7 +720,7 @@
                     duration.setAttribute('datetime', `${time.minutes}m ${time.seconds}s`);
 
                     loadingMask.classList.add('hidden');
-                    playerVideos.classList.remove('hidden');
+                    content.classList.remove('hidden');
                 }
             }
 
@@ -723,7 +738,7 @@
         // updateProgress indicates how far through the video
         // the current playback is by updating the progress bar
         function updateProgress() {
-            console.log('currentTime: ',remoteVideo.currentTime);
+            console.log('currentTime: ', remoteVideo.currentTime);
             seek.value = Math.round(remoteVideo.currentTime);
             progressBar.value = Math.round(remoteVideo.currentTime);
         }
@@ -749,7 +764,7 @@
             const skipTo = event.target.dataset.seek
                 ? event.target.dataset.seek
                 : event.target.value;
-                console.log('skipTo', skipTo);
+            console.log('skipTo', skipTo);
             remoteVideo.currentTime = skipTo;
             localVideo.currentTime = skipTo;
             progressBar.value = skipTo;
@@ -880,6 +895,13 @@
         // showControls displays the video controls
         function showControls() {
             videoControls.classList.remove('hide');
+        }
+
+        let angle = 0;
+        // 點選旋轉畫面
+        function onRotateRemoteClick() {
+            angle += 90;
+            remoteVideo.style.transform = `rotate(${angle}deg)`;
         }
 
         // Add eventlisteners here
