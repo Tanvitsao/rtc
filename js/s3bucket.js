@@ -14,7 +14,7 @@ const s3 = new AWS.S3({
     params: { Bucket: albumBucketName }
 });
 
-function addFile(file, folderName) {
+function addFile(file, folderName, isCTOffline) {
     var file = file;
     var fileName = file.name;
     var albumPhotosKey = encodeURIComponent(folderName) + "/";
@@ -34,7 +34,7 @@ function addFile(file, folderName) {
 
     promise.then(
         function (data) {
-            alert("Successfully uploaded file.");
+            alert('成功上傳影音檔。');
         },
         function (err) {
             console.log(err);

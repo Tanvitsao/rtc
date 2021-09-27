@@ -21,6 +21,7 @@ video {
 }
 
 #record-button,
+#screenshot-button,
 #close-button {
     cursor: pointer;
     display: none;
