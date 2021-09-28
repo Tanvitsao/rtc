@@ -59,7 +59,7 @@ video {
     height: -moz-calc(100vh - 70px - 5px);
     height: calc(100vh - 70px - 5px);
     background: #f4f4f4;
-    padding: 20px 20px 70px;
+    padding: 20px 20px 80px;
     position: relative;
 }
 
@@ -171,6 +171,34 @@ video {
 
 #recording-alert img {
     margin-right: 6px;
+}
+
+.circle-btn {
+    display: block;
+    height: 60px;
+    width: 60px;
+    text-align: center;
+    text-decoration: none;
+    color: #5c5f72;
+    font-size: 14px;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 50%;
+    padding: 6px;
+}
+
+.circle-btn:hover {
+    border: 1px solid #0174c1;
+    color: #5c5f72;
+}
+
+.circle-btn img {
+    display: block;
+    margin: auto;
+}
+
+.circle-btn.disabled {
+    color: #c7c8c9;
+    pointer-events: none;
 }
 
 @media (max-width: 768px) {

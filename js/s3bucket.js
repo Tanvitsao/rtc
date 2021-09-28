@@ -16,7 +16,7 @@ const s3 = new AWS.S3({
     params: { Bucket: albumBucketName }
 });
 
-function addFile(file, folderName, isCTOffline) {
+function addFile(file, folderName) {
     imgFile = file;
     var fileName = file.name;
     var albumPhotosKey = encodeURIComponent(folderName) + "/";

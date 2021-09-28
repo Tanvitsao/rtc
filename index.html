@@ -41,16 +41,28 @@
 		</div>
 		<div class="btn-group-position center">
 			<button type="button" id="join-button" class="btn btn-primary" onclick="onStartClick()">開始</button>
-			<button type="button" id="record-button" class="btn btn-primary me-2 disabled"
+
+			<a href="javascript:void(0)" id="record-button" class="circle-btn me-4 disabled" onclick="onRecordClick()">
+				<img src="./assets/image/rec_disabled.svg" id="rec-img" width="24" alt="">
+				<span>錄製</span>
+			</a>
+			<a href="javascript:void(0)" id="close-button" onclick="onStopClick()">
+				<img src="./assets/image/close.svg" width="60" alt="">
+			</a>
+			<a href="javascript:void(0)" id="screenshot-button" class="circle-btn ms-4 disabled"
+				onclick="onScreenShotClick()">
+				<img src="./assets/image/screenshot_disabled.svg" id="screenshot-img" width="24" alt="">
+				<span>截圖</span>
+			</a>
+
+
+
+
+			<!-- <button type="button" id="record-button" class="btn btn-primary me-2 disabled"
 				onclick="onRecordClick()">錄製</button>
 			<button type="button" id="screenshot-button" class="btn btn-primary me-2"
 				onclick="onScreenShotClick()">截圖</button>
-			<button type="button" id="close-button" class="btn btn-danger" onclick="onStopClick()">結束</button>
-			<!-- <button id="join-button" onclick="onStartClick()">開始</button>
-			<button id="record-button" onclick="onRecordClick()">錄製</button>
-			<div id="close-button" onclick="onStopClick()">
-				<img src="./assets/image/close.svg" width="50" alt="">
-			</div> -->
+			<button type="button" id="close-button" class="btn btn-danger" onclick="onStopClick()">結束</button> -->
 		</div>
 	</div>
 

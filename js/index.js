@@ -22,7 +22,10 @@ let remoteRecorder;
 
 const recordingAlert = document.getElementById('recording-alert');
 
-let isCTOffline = false;
+let onlineStatus = {
+    CT: false,
+    CS: false
+}
 
 // window 初始化
 window.onload = function () {
@@ -86,6 +89,7 @@ function createWebSocketConnection() {
 
                         if (message.State.indexOf('CT') > -1) {
                             document.getElementById("customerState").innerText = '客戶：已上線';
+                            onlineStatus.CT = true;
                             startWebRTC();
                         }
                         else {
@@ -93,25 +97,37 @@ function createWebSocketConnection() {
                             createMedia();
                             document.getElementById("agentState").innerText = '客服人員：已上線';
                             document.getElementById("record-button").style.display = 'block';
+                            document.getElementById("screenshot-button").style.display = 'block';
+                            onlineStatus.CS = true;
                         }
                     } else if (message.Serno.indexOf('$') > -1) { //Customer
                         // document.getElementById("wait-view").innerText = '等待客服人員上線中...';
 
                         if (message.State.indexOf('CS') > -1) {
                             document.getElementById("agentState").innerText = '客服人員：已上線';
+                            onlineStatus.CS = true;
                             startWebRTC();
                         }
                         else {
                             // 取得攝影機、麥克風權限
                             createMedia();
                             document.getElementById("customerState").innerText = '客戶：已上線';
+                            onlineStatus.CT = true;
                         }
                     }
                 } else if (message.State && message.State.indexOf('CT Offline') > -1) {
                     // 客戶離線
                     stopRecorder();
-                    isCTOffline = true;
+                    onlineStatus.CT = false;
+                    remoteVideoEl.setAttribute('src', '');
+                    document.getElementById("customerState").innerText = '客戶：未上線';
+
                     // alert('客戶已離線');
+                } else if (message.State && message.State.indexOf('CS Offline') > -1) {
+                    // 客服人員離線
+                    onlineStatus.CS = false;
+                    remoteVideoEl.setAttribute('src', '');
+                    document.getElementById("agentState").innerText = '客服人員：未上線';
 
                 } else if (message.sdp) {
                     console.log("Sdp::" + event.data);
@@ -125,8 +141,10 @@ function createWebSocketConnection() {
                     pc.addIceCandidate(new RTCIceCandidate(message.candidate));
                 }
             }
-            catch
-            { }
+            catch (e)
+            {
+                console.log(e);
+            }
         };
     }
 }
@@ -150,6 +168,11 @@ async function createMedia() {
     if (!localVideoEl.srcObject && localstream) {
         localVideoEl.srcObject = localstream;
         console.log('本地端視訊！');
+
+        if (onlineStatus.CT && onlineStatus.CS) {
+            document.getElementById('rec-img').setAttribute('src', './assets/image/rec.svg');
+            document.getElementById('screenshot-img').setAttribute('src', './assets/image/screenshot.svg');
+        }
     }
 
 
@@ -193,7 +216,14 @@ async function startWebRTC() {
             remoteVideoEl.srcObject = event.streams[0];
             remotestream = event.streams[0];
             document.getElementById("record-button").classList.remove('disabled');
+            document.getElementById("screenshot-button").classList.remove('disabled');
             console.log('接收流並顯示於遠端視訊！', event);
+
+            console.log(onlineStatus);
+            if (onlineStatus.CT && onlineStatus.CS) {
+                document.getElementById('rec-img').setAttribute('src', './assets/image/rec.svg');
+                document.getElementById('screenshot-img').setAttribute('src', './assets/image/screenshot.svg');
+            }
         }
     };
 }
@@ -232,8 +262,9 @@ function onRecordClick() {
 // 啟動錄音錄影
 function startRecorder() {
     recordingAlert.style.display = 'flex';
-    document.getElementById("record-button").style.display = 'none';
-    document.getElementById("screenshot-button").style.display = 'block';
+    document.getElementById("record-button").classList.add('disabled');
+    document.getElementById('rec-img').setAttribute('src', './assets/image/rec_disabled.svg');
+
 
     // const tracks = [...localstream.getTracks(), ...remotestream.getTracks()];
 
@@ -246,7 +277,7 @@ function startRecorder() {
         const recordVideo = new Blob([event.data], { 'type': 'video' });
 
         const file = new File([event.data], 'local_video.mp4');
-        addFile(file, 'WebRTC', isCTOffline);
+        addFile(file, 'WebRTC');
 
 
 
@@ -273,7 +304,7 @@ function startRecorder() {
 
 
         const file = new File([event.data], 'remote_video.mp4');
-        addFile(file, 'WebRTC', isCTOffline);
+        addFile(file, 'WebRTC');
 
         // const url = URL.createObjectURL(recordVideo);
         // const downloadLink = document.createElement('a');
@@ -310,7 +341,10 @@ function startRecorder() {
 // 結束錄音錄影並下載檔案
 function stopRecorder() {
     recordingAlert.style.display = 'none';
-    document.getElementById("screenshot-button").style.display = 'none';
+    document.getElementById("record-button").classList.add('disabled');
+    document.getElementById("screenshot-button").classList.add('disabled');
+    document.getElementById('rec-img').setAttribute('src', './assets/image/rec_disabled.svg');
+    document.getElementById('screenshot-img').setAttribute('src', './assets/image/screenshot_disabled.svg');
 
     if (localRecorder) {
         localRecorder.stop();
@@ -350,7 +384,10 @@ function onScreenShotClick() {
 }
 
 function onStopClick() {
-    const isInactive = localRecorder.state === 'inactive' || remoteRecorder.state === 'inactive';
+    onlineStatus.CS = false;
+
+    const isInactive = (localRecorder && localRecorder.state === 'inactive') ||
+        (remoteRecorder && remoteRecorder.state === 'inactive');
     if (_myParam.indexOf('@') > -1 && !isInactive) {
         stopRecorder();
     }
@@ -363,6 +400,7 @@ function onStopClick() {
     document.getElementById('join-button').style.display = "block";
     document.getElementById("close-button").style.display = 'none';
     document.getElementById("record-button").style.display = 'none';
+    document.getElementById("screenshot-button").style.display = 'none';
     if (_myParam.indexOf('@') > -1) { // Agent
         document.getElementById("agentState").innerText = '客服人員：未上線';
     } else if (_myParam.indexOf('$') > -1) { // Customer
