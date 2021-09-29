@@ -290,10 +290,10 @@ video {
 
 #alert-success.alert-success,
 #alert-danger.alert-danger {
-    position: absolute;
+    position: fixed;
     top: 8%;
     right: 2%;
-    z-index: 2;
+    z-index: 999;
     opacity: 0;
     transition: all 0.3s;
 }
