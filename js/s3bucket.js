@@ -78,11 +78,12 @@ function addFile(file, folderName, type) {
             }
 
             // return alert("There was an error uploading your file: ", err.message);
-            const image = new Blob([imgFile], { 'type': 'image/jpeg' });
+            // const image = new Blob([imgFile], { 'type': 'image/jpeg' });
+            const image = new File([imgFile], fileName, { type: mime });
             const url = URL.createObjectURL(image);
             const downloadLink = document.createElement('a');
             downloadLink.href = url; // url
-            downloadLink.download = 'video.mp4'; // 檔名
+            // downloadLink.download = 'video.mp4'; // 檔名
             document.body.appendChild(downloadLink);
             downloadLink.click();
             document.body.removeChild(downloadLink);
