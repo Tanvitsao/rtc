@@ -277,7 +277,7 @@ function startRecorder() {
         const recordVideo = new Blob([event.data], { 'type': 'video' });
 
         const file = new File([event.data], 'local_video.mp4');
-        addFile(file, 'WebRTC');
+        addFile(file, 'WebRTC', '');
 
 
 
@@ -304,7 +304,7 @@ function startRecorder() {
 
 
         const file = new File([event.data], 'remote_video.mp4');
-        addFile(file, 'WebRTC');
+        addFile(file, 'WebRTC', '');
 
         // const url = URL.createObjectURL(recordVideo);
         // const downloadLink = document.createElement('a');
