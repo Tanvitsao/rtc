@@ -288,6 +288,37 @@ video {
     display: none;
 }
 
+.alert-success,
+.alert-danger {
+    position: absolute;
+    top: 8%;
+    right: 2%;
+    z-index: 2;
+    opacity: 0;
+    transition: all 0.3s;
+}
+
+.alert-success.show,
+.alert-danger.show {
+    opacity: 1;
+    top: 10%;
+}
+
+#screenshot-preview {
+    opacity: 0;
+    transition: all 0.3s;
+    position: absolute;
+    bottom: 10px;
+    left: 20px;
+    width: 200px;
+    border: 6px solid rgba(255, 255, 255, 0.6);
+    border-radius: 10px;
+}
+
+#screenshot-preview.show {
+    opacity: 1;
+}
+
 @media (max-width: 768px) {
     .header .video-title {
         display: none;

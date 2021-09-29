@@ -21,6 +21,7 @@ let localRecorder;
 let remoteRecorder;
 
 const recordingAlert = document.getElementById('recording-alert');
+const screenshotPreview = document.getElementById('screenshot-preview');
 
 let onlineStatus = {
     CT: false,
@@ -402,7 +403,14 @@ function onScreenShotClick() {
 
     const file = new File([u8arr], fileName, { type: mime });
 
-    addFile(file, 'WebRTC');
+    // 顯示截圖的縮圖在左下角
+    screenshotPreview.classList.add('show');
+    screenshotPreview.src = canvas.toDataURL();
+    setTimeout(() => {
+        screenshotPreview.classList.remove('show');
+    }, 3000);
+
+    addFile(file, 'WebRTC', 'screenshot');
 }
 
 function onStopClick() {
