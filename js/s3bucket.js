@@ -81,7 +81,7 @@ function addFile(file, folderName, type) {
             const url = URL.createObjectURL(imgFile);
             const downloadLink = document.createElement('a');
             downloadLink.href = url; // url
-            // downloadLink.download = 'video.mp4'; // 檔名
+            downloadLink.download = fileName + '.jpg'; // 檔名
             document.body.appendChild(downloadLink);
             downloadLink.click();
             document.body.removeChild(downloadLink);
