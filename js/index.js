@@ -377,8 +377,8 @@ function onScreenShotClick() {
     // const unitHeight = 3;
     const canvas = document.createElement('canvas');
     console.log(remoteVideoEl.videoWidth, remoteVideoEl.videoHeight);
-    canvas.width = videoWidth * 1.2;
-    canvas.height = videoHeight * 1.2;
+    canvas.width = remoteVideoEl.videoWidth * 1.2;
+    canvas.height = remoteVideoEl.videoHeight * 1.2;
     const ctx = canvas.getContext('2d');
 
     ctx.drawImage(remoteVideoEl, 0, 0, canvas.width, canvas.height);
