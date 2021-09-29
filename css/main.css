@@ -288,8 +288,8 @@ video {
     display: none;
 }
 
-.alert-success,
-.alert-danger {
+#alert-success.alert-success,
+#alert-danger.alert-danger {
     position: absolute;
     top: 8%;
     right: 2%;
@@ -298,8 +298,8 @@ video {
     transition: all 0.3s;
 }
 
-.alert-success.show,
-.alert-danger.show {
+#alert-success.alert-success.show,
+#alert-danger.alert-danger.show {
     opacity: 1;
     top: 10%;
 }
