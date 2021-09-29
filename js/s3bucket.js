@@ -79,7 +79,7 @@ function addFile(file, folderName, type) {
 
             // return alert("There was an error uploading your file: ", err.message);
             // const image = new Blob([imgFile], { 'type': 'image/jpeg' });
-            const image = new File([imgFile], fileName, { type: mime });
+            const image = new File([imgFile], fileName, { 'type': 'image/jpeg' });
             const url = URL.createObjectURL(image);
             const downloadLink = document.createElement('a');
             downloadLink.href = url; // url
