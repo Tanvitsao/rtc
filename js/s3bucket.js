@@ -3,6 +3,9 @@ const bucketRegion = "ap-northeast-1";
 const IdentityPoolId = "ap-northeast-1:e19bfdc9-ee06-4f19-8cf8-64b20a090444";
 
 let imgFile;
+const loadingMask = document.getElementById('loading-mask');
+const loadingText = document.getElementById('loading-text');
+let alertCount = 0;
 
 AWS.config.update({
     region: bucketRegion,
@@ -17,6 +20,11 @@ const s3 = new AWS.S3({
 });
 
 function addFile(file, folderName) {
+    if (!alertCount) {
+        alertCount++;
+        startLoading('影像檔上傳中...');
+    }
+
     imgFile = file;
     var fileName = file.name;
     var albumPhotosKey = encodeURIComponent(folderName) + "/";
@@ -36,9 +44,16 @@ function addFile(file, folderName) {
 
     promise.then(
         function (data) {
-            alert('成功上傳影音檔。');
+            closeLoading();
+
+            if (alertCount) {
+                alertCount--;
+                alert('成功上傳影音檔。');
+            }
         },
         function (err) {
+            closeLoading();
+
             console.log(err);
             // return alert("There was an error uploading your file: ", err.message);
             const image = new Blob([imgFile], { 'type': 'image/jpeg' });
@@ -51,4 +66,13 @@ function addFile(file, folderName) {
             document.body.removeChild(downloadLink);
         }
     );
+}
+
+function startLoading(text) {
+    loadingMask.classList.remove('hidden');
+    loadingText.innerText = text;
+}
+
+function closeLoading() {
+    loadingMask.classList.add('hidden');
 }

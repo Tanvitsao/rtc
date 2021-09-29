@@ -27,6 +27,10 @@ let onlineStatus = {
     CS: false
 }
 
+const modal = new bootstrap.Modal(document.getElementById('closeAlertModal'), {
+    keyboard: false
+});
+
 // window 初始化
 window.onload = function () {
     getIdentity();
@@ -117,7 +121,7 @@ function createWebSocketConnection() {
                     }
                 } else if (message.State && message.State.indexOf('CT Offline') > -1) {
                     // 客戶離線
-                    stopRecorder();
+                    pauseRecorder();
                     onlineStatus.CT = false;
                     remoteVideoEl.setAttribute('src', '');
                     document.getElementById("customerState").innerText = '客戶：未上線';
@@ -141,8 +145,7 @@ function createWebSocketConnection() {
                     pc.addIceCandidate(new RTCIceCandidate(message.candidate));
                 }
             }
-            catch (e)
-            {
+            catch (e) {
                 console.log(e);
             }
         };
@@ -338,6 +341,23 @@ function startRecorder() {
     // }
 }
 
+// 暫停錄影
+function pauseRecorder() {
+    console.log('客戶離線因此暫停錄影');
+    recordingAlert.style.display = 'none';
+    document.getElementById("record-button").classList.add('disabled');
+    document.getElementById("screenshot-button").classList.add('disabled');
+    document.getElementById('rec-img').setAttribute('src', './assets/image/rec_disabled.svg');
+    document.getElementById('screenshot-img').setAttribute('src', './assets/image/screenshot_disabled.svg');
+
+    if (localRecorder) {
+        localRecorder.pause();
+    }
+    if (remoteRecorder) {
+        remoteRecorder.pause();
+    }
+}
+
 // 結束錄音錄影並下載檔案
 function stopRecorder() {
     recordingAlert.style.display = 'none';
@@ -384,7 +404,11 @@ function onScreenShotClick() {
 }
 
 function onStopClick() {
-    onlineStatus.CS = false;
+    if (_myParam.indexOf('@') > -1) { // Agent
+        onlineStatus.CS = false;
+    } else if (_myParam.indexOf('$') > -1) { // Customer
+        onlineStatus.CT = false;
+    }
 
     const isInactive = (localRecorder && localRecorder.state === 'inactive') ||
         (remoteRecorder && remoteRecorder.state === 'inactive');

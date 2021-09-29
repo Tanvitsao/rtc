@@ -1,3 +1,7 @@
+:root {
+    --loading-gray: #efefef;
+}
+
 body {
     color: #4a4a4a;
 }
@@ -26,6 +30,85 @@ video {
     cursor: pointer;
     display: none;
 }
+
+/* loading start */
+.loading-screen {
+    background-color: #f2f3f8;
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    z-index: 99999;
+    opacity: 0.7;
+}
+
+#loading-mask {
+    background: rgba(0, 0, 0, 0.5);
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    zoom: 1;
+}
+
+.loading-zone {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.loading-bar {
+    display: inline-block;
+    width: 12px;
+    height: 50px;
+    margin: 4px;
+    animation: loading 1s ease-in-out infinite;
+}
+
+.loading-bar:nth-child(1) {
+    background-color: var(--loading-gray);
+    animation-delay: 0;
+}
+
+.loading-bar:nth-child(2) {
+    background-color: var(--loading-gray);
+    animation-delay: 0.18s;
+}
+
+.loading-bar:nth-child(3) {
+    background-color: var(--loading-gray);
+    animation-delay: 0.36s;
+}
+
+@keyframes loading {
+    0% {
+        transform: scale(1);
+    }
+
+    40% {
+        transform: scale(1, 1.8);
+    }
+
+    80% {
+        transform: scale(1);
+    }
+}
+
+#loading-text {
+    color: var(--loading-gray);
+    position: absolute;
+    top: 60%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* loading end */
 
 /* header start */
 .header {
@@ -199,6 +282,10 @@ video {
 .circle-btn.disabled {
     color: #c7c8c9;
     pointer-events: none;
+}
+
+.hidden {
+    display: none;
 }
 
 @media (max-width: 768px) {

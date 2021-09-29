@@ -10,6 +10,16 @@
 </head>
 
 <body>
+	<!-- loading -->
+	<div id="loading-mask" class="hidden">
+		<div class="loading-zone">
+			<div class="loading-bar"></div>
+			<div class="loading-bar"></div>
+			<div class="loading-bar"></div>
+		</div>
+		<p id="loading-text"></p>
+	</div>
+
 	<div class="header">
 		<img src="./assets/image/logo.jpg" height="40px" width="200px" style="margin-bottom: 10px;" alt="">
 		<h3 class="video-title">視訊服務</h3>
@@ -65,8 +75,6 @@
 			<button type="button" id="close-button" class="btn btn-danger" onclick="onStopClick()">結束</button> -->
 		</div>
 	</div>
-
-
 
 
 	<script src="./js/sockjs.min.js"></script>
