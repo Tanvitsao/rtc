@@ -372,8 +372,9 @@ function stopRecorder() {
 }
 
 function onScreenShotClick() {
-    const unitWidth = 4;
-    const unitHeight = 3;
+    const isMobile = navigator.userAgentData.mobile; //resolves true/false
+    const unitWidth = isMobile ? 3 : 4;
+    const unitHeight = isMobile ? 4 : 3;
     const canvas = document.createElement('canvas');
     console.log(remoteVideoEl.videoWidth, remoteVideoEl.videoHeight);
     canvas.width = unitWidth * 200;
