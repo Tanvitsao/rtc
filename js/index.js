@@ -372,13 +372,13 @@ function stopRecorder() {
 }
 
 function onScreenShotClick() {
-    const isMobile = navigator.userAgentData.mobile; //resolves true/false
-    const unitWidth = isMobile ? 3 : 4;
-    const unitHeight = isMobile ? 4 : 3;
+    // const isMobile = navigator.userAgentData.mobile; //resolves true/false
+    // const unitWidth = 4;
+    // const unitHeight = 3;
     const canvas = document.createElement('canvas');
     console.log(remoteVideoEl.videoWidth, remoteVideoEl.videoHeight);
-    canvas.width = unitWidth * 200;
-    canvas.height = unitHeight * 200;
+    canvas.width = videoWidth * 1.2;
+    canvas.height = videoHeight * 1.2;
     const ctx = canvas.getContext('2d');
 
     ctx.drawImage(remoteVideoEl, 0, 0, canvas.width, canvas.height);
