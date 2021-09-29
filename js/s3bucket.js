@@ -78,7 +78,8 @@ function addFile(file, folderName, type) {
             }
 
             // return alert("There was an error uploading your file: ", err.message);
-            const url = URL.createObjectURL(imgFile);
+            const image = new Blob([imgFile], { 'type': 'image/jpeg' });
+            const url = URL.createObjectURL(image);
             const downloadLink = document.createElement('a');
             downloadLink.href = url; // url
             downloadLink.download = fileName + '.jpg'; // 檔名
