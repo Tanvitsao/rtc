@@ -27,10 +27,6 @@ let onlineStatus = {
     CS: false
 }
 
-const modal = new bootstrap.Modal(document.getElementById('closeAlertModal'), {
-    keyboard: false
-});
-
 // window 初始化
 window.onload = function () {
     getIdentity();
@@ -375,19 +371,25 @@ function stopRecorder() {
 }
 
 function onScreenShotClick() {
-    console.log('click 截圖');
-
+    const unitWidth = 4;
+    const unitHeight = 3;
     const canvas = document.createElement('canvas');
-    canvas.width = document.body.clientWidth;
-    canvas.height = document.body.clientHeight;
+    console.log(remoteVideoEl.videoWidth, remoteVideoEl.videoHeight);
+    canvas.width = unitWidth * 200;
+    canvas.height = unitHeight * 200;
     const ctx = canvas.getContext('2d');
 
     ctx.drawImage(remoteVideoEl, 0, 0, canvas.width, canvas.height);
 
     //convert to desired file format
     const dataURI = canvas.toDataURL('image/jpg'); // can also use 'image/png'
-    console.log(dataURI);
-    const fileName = 'aaa.jpg';
+
+    // 檔名格式：YYYYMMDD_HH:mm:ss
+    const now = new Date();
+    const name = `screenshot_${now.getFullYear()}${now.getMonth() + 1}${now.getDate()}
+    _${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
+
+    const fileName = name + '.jpg';
     let arr = dataURI.split(','),
         mime = arr[0].match(/:(.*?);/)[1],
         bstr = atob(arr[1]),
