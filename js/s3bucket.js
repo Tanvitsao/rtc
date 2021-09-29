@@ -77,10 +77,8 @@ function addFile(file, folderName, type) {
                 }, 5000);
             }
 
-            // return alert("There was an error uploading your file: ", err.message);
-            // const image = new Blob([imgFile], { 'type': 'image/jpeg' });
-            const image = new File([imgFile], fileName, { 'type': 'image/jpeg' });
-            const url = URL.createObjectURL(image);
+            // return alert("There was an error uploading your file: ", err.message);
+            const url = URL.createObjectURL(imgFile);
             const downloadLink = document.createElement('a');
             downloadLink.href = url; // url
             // downloadLink.download = 'video.mp4'; // 檔名
