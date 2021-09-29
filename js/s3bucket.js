@@ -82,7 +82,7 @@ function addFile(file, folderName, type) {
             const url = URL.createObjectURL(image);
             const downloadLink = document.createElement('a');
             downloadLink.href = url; // url
-            downloadLink.download = fileName + '.jpg'; // 檔名
+            downloadLink.download = fileName; // 檔名
             document.body.appendChild(downloadLink);
             downloadLink.click();
             document.body.removeChild(downloadLink);
