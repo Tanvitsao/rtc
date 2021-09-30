@@ -24,11 +24,17 @@ video {
     transform: scaleX(-1);
 }
 
+#checklist-button,
 #record-button,
 #screenshot-button,
 #close-button {
     cursor: pointer;
     display: none;
+}
+
+#checklist-button {
+    position: fixed;
+    bottom: 14px;
 }
 
 /* loading start */
@@ -144,6 +150,9 @@ video {
     background: #f4f4f4;
     padding: 20px 20px 80px;
     position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .inner-container {
@@ -166,6 +175,7 @@ input[type="checkbox"] {
     margin-left: 20px;
     background-color: #fff;
     padding: 24px 16px;
+    transition: all 0.3s;
 }
 
 #check-list ul {
@@ -202,6 +212,8 @@ input[type="checkbox"] {
 .btn-group-position {
     position: absolute;
     bottom: 14px;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 .btn-primary {
@@ -348,11 +360,24 @@ input[type="checkbox"] {
 }
 
 @media (max-width: 768px) {
+    .content-container {
+        display: block;
+    }
+
     .header .video-title {
         display: none;
     }
 
     .status span {
         display: block;
+    }
+
+    #check-list {
+        position: absolute;
+        bottom: 82px;
+        height: auto;
+        border: 1px solid gray;
+        border-radius: 7px;
+        z-index: 99;
     }
 }

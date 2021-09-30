@@ -112,7 +112,10 @@ function createWebSocketConnection() {
                             document.getElementById("agentState").innerText = '客服人員：已上線';
                             document.getElementById("record-button").style.display = 'block';
                             document.getElementById("screenshot-button").style.display = 'block';
-                            checkList.classList.remove('hidden');
+                            document.getElementById("checklist-button").style.display = 'block';
+                            if (window.innerWidth > 768) {
+                                checkList.classList.remove('hidden');
+                            }
                             onlineStatus.CS = true;
                         }
                     } else if (message.Serno.indexOf('$') > -1) { //Customer
@@ -120,7 +123,9 @@ function createWebSocketConnection() {
 
                         if (message.State.indexOf('CS') > -1) {
                             document.getElementById("agentState").innerText = '客服人員：已上線';
-                            checkList.classList.remove('hidden');
+                            if (window.innerWidth > 768) {
+                                checkList.classList.remove('hidden');
+                            }
                             onlineStatus.CS = true;
                             startWebRTC();
                         }
@@ -468,6 +473,15 @@ function localDescCreated(desc) {
 
 function logError(error) {
     console.log(error.name + ": " + error.message);
+}
+
+function onChecklistClick() {
+    isListShow = !checkList.classList.contains('hidden');
+    if (isListShow) {
+        checkList.classList.add('hidden');
+    } else {
+        checkList.classList.remove('hidden');
+    }
 }
 
 function checkboxChange(event) {
