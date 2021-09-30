@@ -123,9 +123,6 @@ function createWebSocketConnection() {
 
                         if (message.State.indexOf('CS') > -1) {
                             document.getElementById("agentState").innerText = '客服人員：已上線';
-                            if (window.innerWidth > 768) {
-                                checkList.classList.remove('hidden');
-                            }
                             onlineStatus.CS = true;
                             startWebRTC();
                         }
@@ -457,9 +454,12 @@ function onStopClick() {
     document.getElementById("close-button").style.display = 'none';
     document.getElementById("record-button").style.display = 'none';
     document.getElementById("screenshot-button").style.display = 'none';
+    localVideoEl.setAttribute('src', '');
+    remoteVideoEl.setAttribute('src', '');
     if (_myParam.indexOf('@') > -1) { // Agent
         document.getElementById("agentState").innerText = '客服人員：未上線';
         checkList.classList.add('hidden');
+        document.getElementById("checklist-button").style.display = 'none';
     } else if (_myParam.indexOf('$') > -1) { // Customer
         document.getElementById("customerState").innerText = '客戶：未上線';
     }
