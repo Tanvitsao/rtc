@@ -22,11 +22,24 @@ let remoteRecorder;
 
 const recordingAlert = document.getElementById('recording-alert');
 const screenshotPreview = document.getElementById('screenshot-preview');
+const checkList = document.getElementById('check-list');
+const cbox1 = document.getElementById('cbox1');
+const cbox2 = document.getElementById('cbox2');
+const cbox3 = document.getElementById('cbox3');
+const cbox4 = document.getElementById('cbox4');
+const cbox5 = document.getElementById('cbox5');
+let cboxStatus = {
+    cbox1: false,
+    cbox2: false,
+    cbox3: false,
+    cbox4: false,
+    cbox5: false
+};
 
 let onlineStatus = {
     CT: false,
     CS: false
-}
+};
 
 // window 初始化
 window.onload = function () {
@@ -99,6 +112,7 @@ function createWebSocketConnection() {
                             document.getElementById("agentState").innerText = '客服人員：已上線';
                             document.getElementById("record-button").style.display = 'block';
                             document.getElementById("screenshot-button").style.display = 'block';
+                            checkList.classList.remove('hidden');
                             onlineStatus.CS = true;
                         }
                     } else if (message.Serno.indexOf('$') > -1) { //Customer
@@ -106,6 +120,7 @@ function createWebSocketConnection() {
 
                         if (message.State.indexOf('CS') > -1) {
                             document.getElementById("agentState").innerText = '客服人員：已上線';
+                            checkList.classList.remove('hidden');
                             onlineStatus.CS = true;
                             startWebRTC();
                         }
@@ -129,6 +144,7 @@ function createWebSocketConnection() {
                     onlineStatus.CS = false;
                     remoteVideoEl.setAttribute('src', '');
                     document.getElementById("agentState").innerText = '客服人員：未上線';
+                    checkList.classList.add('hidden');
 
                 } else if (message.sdp) {
                     console.log("Sdp::" + event.data);
@@ -438,6 +454,7 @@ function onStopClick() {
     document.getElementById("screenshot-button").style.display = 'none';
     if (_myParam.indexOf('@') > -1) { // Agent
         document.getElementById("agentState").innerText = '客服人員：未上線';
+        checkList.classList.add('hidden');
     } else if (_myParam.indexOf('$') > -1) { // Customer
         document.getElementById("customerState").innerText = '客戶：未上線';
     }
@@ -452,3 +469,14 @@ function localDescCreated(desc) {
 function logError(error) {
     console.log(error.name + ": " + error.message);
 }
+
+function checkboxChange(event) {
+    const cbox = event.currentTarget.id;
+    cboxStatus[cbox] = event.currentTarget.checked;
+}
+
+cbox1.addEventListener('change', checkboxChange);
+cbox2.addEventListener('change', checkboxChange);
+cbox3.addEventListener('change', checkboxChange);
+cbox4.addEventListener('change', checkboxChange);
+cbox5.addEventListener('change', checkboxChange);

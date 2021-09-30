@@ -61,6 +61,7 @@
 	</div>
 	<div class="gradient-bar"></div>
 	<div class="content-container center">
+		<!-- 視訊 -->
 		<div class="inner-container">
 			<!-- 錄影中提示 -->
 			<div id="recording-alert" class="alert alert-danger" role="alert">
@@ -80,6 +81,33 @@
 				<video id="localVideo" autoplay playsinline class="active"></video>
 			</div>
 		</div>
+		<!-- check list -->
+		<div id="check-list" class="hidden">
+			<h4 class="text-center mb-3">遠距投保待辦事項</h4>
+			<ul>
+				<li>
+					<input type="checkbox" id="cbox1" value="first_checkbox">
+					<label for="cbox1">業務員自我介紹</label>
+				</li>
+				<li>
+					<input type="checkbox" id="cbox2" value="first_checkbox">
+					<label for="cbox2">請客戶講出姓名</label>
+				</li>
+				<li>
+					<input type="checkbox" id="cbox3" value="first_checkbox">
+					<label for="cbox3">講完後，出示身分證明證件於螢幕前</label>
+				</li>
+				<li>
+					<input type="checkbox" id="cbox4" value="first_checkbox">
+					<label for="cbox4">於螢幕前出示證件正反面各5秒鐘</label>
+				</li>
+				<li>
+					<input type="checkbox" id="cbox5" value="first_checkbox">
+					<label for="cbox5">簽名時須在鏡頭前露出</label>
+				</li>
+			</ul>
+		</div>
+		<!-- 下方按鈕 -->
 		<div class="btn-group-position center">
 			<button type="button" id="join-button" class="btn btn-primary" onclick="onStartClick()">開始</button>
 
