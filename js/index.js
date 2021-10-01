@@ -322,7 +322,7 @@ function startRecorder() {
 
 
         const file = new File([event.data], 'remote_video.mp4');
-        addFile(file, 'WebRTC', '');
+        addFile(file, 'WebRTC', 'remoteVideo');
 
         // const url = URL.createObjectURL(recordVideo);
         // const downloadLink = document.createElement('a');
