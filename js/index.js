@@ -10,7 +10,7 @@ let pc;
 /* iceServer */
 const iceServer = {
     iceServers: [{
-        "urls": "stun:stun.l.google.com:19302" // Google's public STUN server
+        "urls": "stun:lab.easontech.com.tw:3478" // Google's public STUN server
     }]
 };
 /* 本地/遠端視訊 element */

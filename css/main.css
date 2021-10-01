@@ -177,6 +177,7 @@ input[type="checkbox"] {
     background-color: #fff;
     padding: 24px 16px;
     transition: all 0.3s;
+    overflow: auto;
 }
 
 #check-list ul {
