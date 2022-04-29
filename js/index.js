@@ -23,6 +23,7 @@ let remoteRecorder;
 const recordingAlert = document.getElementById('recording-alert');
 const screenshotPreview = document.getElementById('screenshot-preview');
 const checkList = document.getElementById('check-list');
+const declarationFile = document.getElementById('declaration-file');
 const cbox1 = document.getElementById('cbox1');
 const cbox2 = document.getElementById('cbox2');
 const cbox3 = document.getElementById('cbox3');
@@ -158,6 +159,9 @@ function createWebSocketConnection() {
                 } else if (message.candidate) {
                     console.log("Candidate::" + event.data);
                     pc.addIceCandidate(new RTCIceCandidate(message.candidate));
+                } else if (message.customMsg) {
+                    console.log(message.customMsg);
+                    showFile2Sign();
                 }
             }
             catch (e) {
@@ -494,3 +498,15 @@ cbox2.addEventListener('change', checkboxChange);
 cbox3.addEventListener('change', checkboxChange);
 cbox4.addEventListener('change', checkboxChange);
 cbox5.addEventListener('change', checkboxChange);
+
+function onShowFileClick() {
+    wsc.send(JSON.stringify({ "customMsg": '請簽署~~~' }))
+}
+
+function showFile2Sign() {
+    declarationFile.classList.remove('hidden');
+}
+
+function onSignFileClick() {
+    initCanvas();
+}

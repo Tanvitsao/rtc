@@ -6,10 +6,11 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<link rel="stylesheet" href="./plugin/bootstrap-5.1.0/css/bootstrap.min.css">
+	<link rel="stylesheet" href="./plugin/pdfjs-2.13.216-dist/web/viewer.css">
 	<link rel="stylesheet" href="./css/main.css" />
 </head>
 
-<body>
+<body onresize="onResize()">
 	<!-- loading -->
 	<div id="loading-mask" class="hidden">
 		<div class="loading-zone">
@@ -62,7 +63,7 @@
 	<div class="gradient-bar"></div>
 	<div class="content-container">
 		<!-- 視訊 -->
-		<div class="inner-container">
+		<section class="inner-container">
 			<!-- 錄影中提示 -->
 			<div id="recording-alert" class="alert alert-danger" role="alert">
 				<img src="./assets/image/record.svg" width="18" alt="">
@@ -80,9 +81,19 @@
 				<video id="remoteVideo" autoplay playsinline class="active"></video>
 				<video id="localVideo" autoplay playsinline class="active"></video>
 			</div>
-		</div>
+		</section>
+		<!-- 投保聲明書文件顯示 -->
+		<section id="declaration-file" class="hidden">
+			<iframe src="./assets/pdf/南山產物保險股份有限公司.pdf" width="100%" height="100%" frameborder="0"
+				cellspacing="0"></iframe>
+			<a href="javascript:void(0)" id="sign-button" class="circle-btn" data-bs-toggle="modal"
+				data-bs-target="#signaturePad" onclick="onSignFileClick()">
+				<img src="./assets/image/signature.png" width="24" alt="">
+				<span>簽署</span>
+			</a>
+		</section>
 		<!-- check list -->
-		<div id="check-list" class="hidden">
+		<section id="check-list" class="hidden">
 			<h4 class="text-center mb-3">遠距投保待辦事項</h4>
 			<ul>
 				<li>
@@ -101,24 +112,23 @@
 					<input type="checkbox" id="cbox4" value="first_checkbox">
 					<label for="cbox4">請客戶出示身分證明證件於螢幕前，正反面各停留5秒鐘，並截圖</label>
 				</li>
-				<li>
-					<input type="checkbox" id="cbox5" value="first_checkbox">
-					<label for="cbox5">請客戶簽署聲明書，簽名時須在鏡頭前露出</label>
+				<li class="d-block">
+					<div class="d-flex align-items-center">
+						<input type="checkbox" id="cbox5" value="first_checkbox">
+						<label for="cbox5">請客戶簽署聲明書，簽名時須在鏡頭前露出</label>
+					</div>
+					<button type="button" class="btn btn-primary" onclick="onShowFileClick()">顯示文件</button>
 				</li>
 				<li>
 					<input type="checkbox" id="cbox6" value="first_checkbox">
-					<label for="cbox6">簽名時，業務員截圖證明文件為客戶親簽</label>
+					<label for="cbox6">簽名完成後，業務員點選送出並即時套印文件</label>
 				</li>
 				<li>
 					<input type="checkbox" id="cbox7" value="first_checkbox">
-					<label for="cbox7">簽名結束後，於螢幕前出示整張聲明書五秒，並截圖</label>
-				</li>
-				<li>
-					<input type="checkbox" id="cbox8" value="first_checkbox">
-					<label for="cbox8">視訊簽署聲明同意的意願確認</label>
+					<label for="cbox7">視訊簽署聲明同意的意願確認</label>
 				</li>
 			</ul>
-		</div>
+		</section>
 		<!-- 下方按鈕 -->
 		<a href="javascript:void(0)" id="checklist-button" class="circle-btn" onclick="onChecklistClick()">
 			<img src="./assets/image/clipboard.svg" width="24" alt="">
@@ -154,13 +164,44 @@
 	<!-- 截圖畫面提示 -->
 	<img src="" id="screenshot-preview" alt="">
 
+	<!-- 簽名板 modal -->
+	<div class="modal fade" id="signaturePad" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+		aria-labelledby="staticBackdropLabel" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="staticBackdropLabel">線上簽署</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+						onclick="clearCanvas()"></button>
+				</div>
+				<div class="modal-body">
+					<div id="signCard" class="text-center sign-zone">
+						<span *ngIf="signer" class="sign-title">簽名</span>
+						<canvas id="signPad" onmousedown="onMouseDown(event)" onmouseup="onMouseUp(event)"
+							onmousemove="onMouseMove(event)" ontouchstart="onMouseDown(event)"
+							ontouchend="onMouseUp(event)" ontouchmove="onMouseMove(event)"></canvas>
+						<span class="text-16 sign-text">（請簽於此範圍）</span>
+					</div>
+				</div>
+				<div class="modal-footer justify-content-center">
+					<button type="button" class="btn btn-light" onclick="clearCanvas()">重新簽名</button>
+					<button type="button" class="btn btn-primary" onclick="saveCanvas()">送出簽名</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
 
 	<script src="./js/sockjs.min.js"></script>
-	<script src="./plugin/bootstrap-5.1.0/js/bootstrap.min.js"></script>
 	<script src="./js/adapter.js"></script>
+	<script src="./plugin/bootstrap-5.1.0/js/bootstrap.min.js"></script>
+	<script src="./plugin/pdfjs-2.13.216-dist/build/pdf.js"></script>
+	<script src="./plugin/pdfjs-2.13.216-dist/web/viewer.js"></script>
 	<script src="https://sdk.amazonaws.com/js/aws-sdk-2.990.0.min.js"></script>
 	<script src="./js/s3bucket.js"></script>
 	<script src="./js/index.js"></script>
+	<script src="./js/signature.js"></script>
 </body>
 
 </html>

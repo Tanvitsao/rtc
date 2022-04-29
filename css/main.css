@@ -37,6 +37,15 @@ video {
     bottom: 14px;
 }
 
+#sign-button {
+    position: absolute;
+    right: 40px;
+    bottom: 30px;
+    background-color: #0174c1;
+    color: white;
+    box-shadow: 1px 1px 8px #efefef;
+}
+
 /* loading start */
 .loading-screen {
     background-color: #f2f3f8;
@@ -122,6 +131,7 @@ video {
     padding: 0 16px;
     display: flex;
     align-items: center;
+    background-color: white;
 }
 .header .video-title {
     font-size: 22px;
@@ -167,6 +177,13 @@ input[type="checkbox"] {
     width: 20px;
     min-width: 20px;
     margin-right: 5px;
+}
+
+#declaration-file {
+    margin-left: 20px;
+    min-width: 800px;
+    height: 100%;
+    position: relative;
 }
 
 #check-list {
@@ -225,7 +242,8 @@ input[type="checkbox"] {
 
 .btn-primary:hover,
 .btn-primary:active,
-.btn-primary:focus {
+.btn-primary:focus,
+#sign-button:hover {
     background: #0066aa;
     color: white;
 }
@@ -360,6 +378,29 @@ input[type="checkbox"] {
 #screenshot-preview.show {
     opacity: 1;
 }
+
+/* signature start */
+.sign-zone {
+    max-width: 630px;
+    height: 420px;
+    margin: auto;
+    position: relative;
+    border: 1px #d5d5d5 solid;
+}
+.sign-zone .sign-title {
+    position: absolute;
+    top: 14px;
+    left: 0;
+    right: 0;
+    font-size: 24px;
+}
+.sign-zone .sign-text {
+    position: absolute;
+    bottom: 14px;
+    left: 0;
+    right: 0;
+}
+/* signature end */
 
 @media (max-width: 768px) {
     .content-container {
