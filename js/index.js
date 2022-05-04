@@ -20,6 +20,14 @@ const remoteVideoEl = document.getElementById('remoteVideo');
 let localRecorder;
 let remoteRecorder;
 
+/** loading */
+const loadingMask = document.getElementById('loading-mask');
+const loadingText = document.getElementById('loading-text');
+
+/** message */
+const successMsg = document.getElementById('alert-success');
+const alertMsg = document.getElementById('alert-danger');
+
 const recordingAlert = document.getElementById('recording-alert');
 const screenshotPreview = document.getElementById('screenshot-preview');
 const checkList = document.getElementById('check-list');
@@ -99,6 +107,9 @@ function createWebSocketConnection() {
                     document.getElementById("videos").style.display = 'block';
                     document.getElementById("close-button").style.display = 'block';
 
+                    closeLoading();
+                    showMsg('success', '連線成功！');
+
                     if (message.Serno.indexOf('@') > -1) {	//Agent
                         // document.getElementById("wait-view").innerText = '等待客戶上線中...';
 
@@ -168,6 +179,16 @@ function createWebSocketConnection() {
                 console.log(e);
             }
         };
+
+        wsc.onclose = function (event) {
+            console.log(event);
+            // reason: "Cannot connect to server"
+            if (event && event.code === 1002) {
+                closeLoading();
+                showMsg('alert', '無法連線伺服器，請稍後再試！');
+                onStopClick();
+            }
+        };
     }
 }
 
@@ -179,6 +200,7 @@ function closeWebSocketConnection() {
 
 // 點選開始
 function onStartClick() {
+    startLoading();
     createWebSocketConnection();
     setupPeerConnection();
 }
@@ -509,4 +531,37 @@ function showFile2Sign() {
 
 function onSignFileClick() {
     initCanvas();
+}
+
+function startLoading(text) {
+    loadingMask.classList.remove('hidden');
+    if (text) {
+        loadingText.innerText = text;
+    }
+}
+
+function closeLoading() {
+    loadingMask.classList.add('hidden');
+}
+
+function showMsg(type, text) {
+    switch (type) {
+        case 'success':
+            successMsg.classList.add('show');
+            document.getElementById('success-msg').innerText = text;
+            setTimeout(() => {
+                successMsg.classList.remove('show');
+            }, 5000);
+            break;
+        case 'alert':
+            alertMsg.classList.add('show');
+            document.getElementById('alert-msg').innerText = text;
+
+            setTimeout(() => {
+                alertMsg.classList.remove('show');
+            }, 5000);
+            break;
+        default:
+            break;
+    }
 }

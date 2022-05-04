@@ -3,11 +3,6 @@ const bucketRegion = "ap-northeast-1";
 const IdentityPoolId = "ap-northeast-1:e19bfdc9-ee06-4f19-8cf8-64b20a090444";
 
 let imgFile;
-const loadingMask = document.getElementById('loading-mask');
-const loadingText = document.getElementById('loading-text');
-
-const successMsg = document.getElementById('alert-success');
-const alertMsg = document.getElementById('alert-danger');
 
 AWS.config.update({
     region: bucketRegion,
@@ -52,24 +47,13 @@ function addFile(file, folderName, type) {
                 closeLoading();
             }
 
-            successMsg.classList.add('show');
-            document.getElementById('success-msg').innerText = isUploadScreenshot ? '成功上傳截圖。' : `成功上傳${fileName}影音檔。`;
-
-            setTimeout(() => {
-                successMsg.classList.remove('show');
-            }, 5000);
-
+            showMsg('success', isUploadScreenshot ? '成功上傳截圖。' : `成功上傳${fileName}影音檔。`);
         },
         function (err) {
             console.log(err);
             closeLoading();
 
-            alertMsg.classList.add('show');
-            document.getElementById('alert-msg').innerText = '上傳發生問題，將下載檔案至本地。';
-
-            setTimeout(() => {
-                alertMsg.classList.remove('show');
-            }, 5000);
+            showMsg('alert', '上傳發生問題，將下載檔案至本地。');
 
             // return alert("There was an error uploading your file: ", err.message);
             const image = new Blob([imgFile], { 'type': 'image/jpeg' });
@@ -82,13 +66,4 @@ function addFile(file, folderName, type) {
             document.body.removeChild(downloadLink);
         }
     );
-}
-
-function startLoading(text) {
-    loadingMask.classList.remove('hidden');
-    loadingText.innerText = text;
-}
-
-function closeLoading() {
-    loadingMask.classList.add('hidden');
 }
