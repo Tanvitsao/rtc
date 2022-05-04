@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>PPT Demo</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="./plugin/bootstrap-5.1.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="./plugin/pdfjs-2.13.216-dist/web/viewer.css">
+    <link rel="stylesheet" href="./css/main.css" />
+    <style>
+        .circle-btn-primary {
+            background-color: #0174c1;
+            color: white;
+        }
+
+        .circle-btn-primary:hover {
+            box-shadow: 1px 1px 6px rgba(0, 0, 0, 0.5);
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- loading -->
+    <div id="loading-mask" class="hidden">
+        <div class="loading-zone">
+            <div class="loading-bar"></div>
+            <div class="loading-bar"></div>
+            <div class="loading-bar"></div>
+        </div>
+        <p id="loading-text"></p>
+    </div>
+    <!-- alert -->
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+        <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
+            <path
+                d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
+        </symbol>
+        <symbol id="info-fill" fill="currentColor" viewBox="0 0 16 16">
+            <path
+                d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z" />
+        </symbol>
+        <symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16">
+            <path
+                d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
+        </symbol>
+    </svg>
+    <div id="alert-success" class="alert alert-success d-flex align-items-center" role="alert">
+        <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:">
+            <use xlink:href="#check-circle-fill" />
+        </svg>
+        <div id="success-msg">
+            An example success alert with an icon
+        </div>
+    </div>
+    <div id="alert-danger" class="alert alert-danger d-flex align-items-center" role="alert">
+        <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:">
+            <use xlink:href="#exclamation-triangle-fill" />
+        </svg>
+        <div id="alert-msg">
+            An example danger alert with an icon
+        </div>
+    </div>
+
+    <div class="header">
+        <img src="./assets/image/logo.jpg" height="40px" width="200px" style="margin-bottom: 10px;" alt="">
+        <!-- <h3 class="video-title">視訊服務</h3> -->
+    </div>
+    <div class="gradient-bar"></div>
+    <div class="content-container">
+        <!-- pdf -->
+        <section class="inner-container text-center">
+            <canvas id="pdfCanvas"></canvas>
+            <p class="mt-2">Page: <span id="page_num"></span> / <span id="page_count"></span></p>
+            <p class="mt2">閱讀倒數：<span id="time"></span></p>
+        </section>
+        <!-- 下方按鈕 -->
+        <div class="btn-group-position center">
+            <a href="javascript:void(0)" id="prev" class="circle-btn circle-btn-primary" (click)="onPageClick('prev')">
+                <img src="./assets/image/left-arrow.png" width="24" alt="">
+                <p>上一頁</p>
+            </a>
+            <a href="javascript:void(0)" id="next" class="circle-btn circle-btn-primary ms-4 hidden"
+                (click)="onPageClick('next')">
+                <img src="./assets/image/right-arrow.png" width="24" alt="">
+                <p>下一頁</p>
+            </a>
+            <a href="javascript:void(0)" id="next-disabled" class="circle-btn ms-4 disabled">
+                <img src="./assets/image/right-arrow-disabled.png" width="24" alt="">
+                <span>下一頁</span>
+            </a>
+        </div>
+    </div>
+
+
+
+    <script src="./plugin/bootstrap-5.1.0/js/bootstrap.min.js"></script>
+    <script src="./plugin/pdfjs-2.13.216-dist/build/pdf.js"></script>
+    <script src="./plugin/pdfjs-2.13.216-dist/web/viewer.js"></script>
+    <script>
+        /**
+         * 外層的 card
+         */
+        // const pdfCard = document.getElementById('pdfCard');
+
+        /**
+         * pdf 顯示區域
+         */
+        const pdfCanvas = document.getElementById('pdfCanvas');
+
+        /**
+         * 內容
+         */
+        let ctx;
+
+        const url = './assets/pdf/mercue-intro-Lynn-150dpi.pdf';
+        const pdfjsLib = window['pdfjs-dist/build/pdf'];
+        let pdfDoc = null;
+        let pageNum = 1;
+        let pageRendering = false;
+        let pageNumPending = null;
+        const scale = 1.5;
+
+        // 計時
+        let interval;
+        // 計時長度（單位：秒）
+        let timePeriod = 5;
+        // 秒數（單位：秒）
+        let time = timePeriod;
+
+        // window 初始化
+        window.onload = function () {
+            initCanvas();
+            startTimer();
+        }
+
+        /**
+         * 初始化 canvas
+         */
+        function initCanvas() {
+            ctx = pdfCanvas.getContext('2d');
+            pdfjsLib.GlobalWorkerOptions.workerSrc = './plugin/pdfjs-2.13.216-dist/build/pdf.worker.js';
+        }
+
+        /**
+         * 依卡片寬高設定 canvas 大小
+         * @param width 卡片寬
+         * @param height 卡片高
+         */
+        function setCanvasSize(width, height) {
+            pdfCanvas.width = width;
+            pdfCanvas.height = height;
+        }
+
+        // function onResize() {
+        //     setTimeout(() => {
+        //         this.setCanvasSize(pdfCard.offsetWidth, pdfCard.offsetHeight);
+        //     });
+        // }
+
+        /**
+         * Get page info from document, resize canvas accordingly, and render page.
+         * @param num Page number.
+         */
+        function renderPage(num) {
+            pageRendering = true;
+            // Using promise to fetch the page
+            pdfDoc.getPage(num).then(function (page) {
+                console.log(page);
+                var viewport = page.getViewport({ scale: scale });
+                pdfCanvas.height = viewport.height;
+                pdfCanvas.width = viewport.width;
+
+                // Render PDF page into canvas context
+                var renderContext = {
+                    canvasContext: ctx,
+                    viewport: viewport
+                };
+                var renderTask = page.render(renderContext);
+
+                // Wait for rendering to finish
+                renderTask.promise.then(function () {
+                    pageRendering = false;
+                    if (pageNumPending !== null) {
+                        // New page rendering is pending
+                        renderPage(pageNumPending);
+                        pageNumPending = null;
+                    }
+                });
+            });
+
+            // Update page counters
+            document.getElementById('page_num').textContent = num;
+        }
+
+
+        /**
+         * If another page rendering in progress, waits until the rendering is
+         * finised. Otherwise, executes rendering immediately.
+         */
+        function queueRenderPage(num) {
+            if (pageRendering) {
+                pageNumPending = num;
+            } else {
+                renderPage(num);
+            }
+        }
+
+        /**
+         * Displays previous page.
+         */
+        function onPrevPage() {
+            if (pageNum <= 1) {
+                return;
+            }
+            pageNum--;
+            queueRenderPage(pageNum);
+        }
+        document.getElementById('prev').addEventListener('click', onPrevPage);
+
+        /**
+         * Displays next page.
+         */
+        function onNextPage() {
+            if (pageNum >= pdfDoc.numPages) {
+                return;
+            }
+            pageNum++;
+            queueRenderPage(pageNum);
+            resetTimer();
+            startTimer();
+        }
+        document.getElementById('next').addEventListener('click', onNextPage);
+
+        /**
+         * Asynchronously downloads PDF.
+         */
+        pdfjsLib.getDocument(url).promise.then(function (pdfDoc_) {
+            pdfDoc = pdfDoc_;
+            document.getElementById('page_count').textContent = pdfDoc.numPages;
+
+            // Initial/first page rendering
+            renderPage(pageNum);
+        });
+
+        /**
+         * 啟動計時器
+         */
+        function startTimer() {
+            document.getElementById('time').textContent = time;
+            document.getElementById('next').classList.add('hidden');
+            document.getElementById('next-disabled').classList.remove('hidden');
+            interval = setInterval(() => {
+                if (time <= timePeriod && time > 0) {
+                    time--;
+                    document.getElementById('time').textContent = time;
+                } else {
+                    resetTimer();
+                    document.getElementById('next').classList.remove('hidden');
+                    document.getElementById('next-disabled').classList.add('hidden');
+
+                }
+            }, 1000);
+        }
+
+        function resetTimer() {
+            clearInterval(interval);
+            timePeriod = 5;
+            time = timePeriod;
+        }
+
+
+    </script>
+</body>
+
+</html>
